@@ -1,0 +1,183 @@
+@import "normalize.css";
+@import "sanitize.css";
+@import "./setup.scss"; //this is should be always after themes
+
+body {
+  color: $basicColor;
+  background: $basicBackColor;
+  font-family: "Roboto", sans-serif;
+  margin-top: 100px;
+}
+
+::placeholder {
+  text-overflow: ellipsis;
+}
+
+*:focus {
+  outline: 2px solid $focusFrameColor;
+  outline-offset: -2px;
+}
+
+a {
+  color: $linkColor;
+
+  &:hover {
+    color: $linkHoverColor;
+  }
+
+  &:focus {
+    outline-offset: 2px;
+  }
+}
+
+input,
+textarea,
+button {
+  color: inherit;
+  font: inherit;
+  border-radius: $borderRadius;
+  padding: 0;
+  margin: 0;
+}
+
+textarea {
+  // stylelint-disable-next-line plugin/no-unsupported-browser-features
+  resize: vertical;
+  display: block; //it removes extra space below
+  min-height: 34px;
+  max-height: 400px;
+}
+
+button,
+.btn,
+input[type="button"],
+input[type="reset"],
+input[type="submit"],
+[tabIndex="0"] {
+  cursor: pointer;
+}
+
+button[disabled],
+.btn[disabled],
+input[disabled],
+.input[disabled],
+textarea[disabled] {
+  cursor: default;
+  cursor: not-allowed;
+}
+
+input[placeholder]:not([type="textarea"]),
+[contenteditable="true"] {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+form {
+  box-shadow: $basicShadow;
+  border: solid 1px $basicBorderColor;
+  border-radius: $borderRadius;
+}
+
+[data-no-copy="true"] [data-copy] {
+  -webkit-touch-callout: none; /*iOS Safari*/
+  user-select: none;
+}
+
+.mainLoader {
+  display: flex;
+  flex-direction: column;
+
+  > * {
+    margin: auto;
+    margin-top: 30px;
+  }
+}
+
+#app {
+  overflow: hidden;
+  width: 100%;
+  min-height: 100%;
+  min-height: 100vh;
+  max-height: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  // > * {
+  //   flex: 1 0 auto;
+  // }
+}
+
+//end: it prevents
+
+[class^="icon-"],
+[class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
+  font-family: "icomoon" !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.horizontal-slider {
+  width: 100%;
+  max-width: 170px;
+  height: 50px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.horizontal-slider2 {
+  width: 100%;
+  height: 32px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.example-thumb {
+  display: none;
+}
+
+.example-track {
+  top: 20px;
+  position: relative;
+  background: $gradi;
+  height: 10px;
+  border-radius: 10px;
+  z-index: 2;
+}
+
+.example-track.example-track-1 {
+  background: $basicColor;
+  opacity: 0.5;
+  border-radius: 0;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  z-index: 1;
+}
+
+.example-thumb2 {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  top: 18px;
+  background-color: white;
+  cursor: pointer;
+  z-index: 3 !important;
+  color: transparent;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}

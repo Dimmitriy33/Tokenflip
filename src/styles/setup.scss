@@ -1,0 +1,65 @@
+$basicTextColor: var(--basicTextColor, #fff);
+$basicTextDisabledColor: var(--basicTextDisabledColor, #717273);
+$basicBackColor: var(--basicBackColor, #16191f); //color for body background
+$basicBackColor2: var(--basicBackColor2, white); //color for boxes: the header, modal-windows, forms
+$basicBorderColor: var(--basicBorderColor, #292929); //border color for boxes: the header, modal-windows, forms
+$basicShadow: var(--basicBoxShadow, 0px 2px 4px rgba(0, 0, 0, 0.3)); //shadow for boxes: forms etc.
+
+$inputBorderColor: var(--inputBorderColor, #bdcad9);
+$inputDisabledBackColor: var(--inputDisabledBackColor, #ebebe4);
+$inputIconBackColor: var(--inputIconBackColor, whitesmoke);
+
+$borderRadius: 5px;
+$focusFrameColor: var(--focusFrameColor, #00a5d4);
+$errorTextColor: var(--errorTextColor, #b70000);
+$successTextColor: var(--successTextColor, #007522);
+$descriptionTextColor: var(--descriptionTextColor, #3b3e45);
+$iconCheckColor: var(--iconCheckColor, #48a484);
+$_basicActiveColor: var(--genericColor, #6ec1ff);
+
+$primaryBtnTextColor: var(--primaryBtnTextColor, #ff2e00);
+$primaryBtnBackColor: var(--primaryBtnBackColor, #fff);
+$primaryBtnHoverBackColor: var(--primaryBtnHoverBackColor, #d43900);
+$primaryBtnHoverTextColor: var(--primaryBtnHoverTextColor, $primaryBtnTextColor);
+$primaryBtnDisabledTextColor: var(--primaryBtnTextColor, $primaryBtnTextColor);
+$primaryBtnDisabledBackColor: var(--primaryBtnDisabledBackColor, #748390);
+
+$secondaryBtnTextColor: var(--secondaryBtnTextColor, #fff);
+$secondaryBtnBackColor: var(--secondaryBtnBackColor, rgba(90, 90, 90, 0.2));
+$secondaryBtnHoverBackColor: var(--secondaryBtnHoverBackColor, #d1f2fc);
+$secondaryBtnHoverTextColor: var(--secondaryBtnHoverTextColor, $secondaryBtnTextColor);
+
+$linkColor: var(--linkColor, $_basicActiveColor);
+$linkHoverColor: var(--linkHoverColor, #0080a3);
+$spinnerColor1: var(--spinnerColor1, #00a5d4);
+$spinnerColor2: var(--spinnerColor2, #f3f3f3);
+
+@mixin iconBefore($name) {
+  &:before {
+    /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
+    font-family: "icomoon" !important;
+    content: $name;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@mixin iconAfter($name) {
+  &:after {
+    /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
+    font-family: "icomoon" !important;
+    content: $name;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@mixin boxShadow($padding: 36px) {
+  background: $basicBackColor2;
+  padding: $padding;
+  border: solid 1px $basicBorderColor;
+  box-shadow: $basicShadow;
+  border-radius: $borderRadius;
+}

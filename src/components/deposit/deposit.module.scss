@@ -1,0 +1,262 @@
+/* stylelint-disable declaration-block-no-shorthand-property-overrides */
+/* stylelint-disable no-descending-specificity */
+/* stylelint-disable font-family-no-missing-generic-family-keyword */
+@import "../../styles/setup.scss"; //this is should be always after themes
+
+.home {
+  width: calc(100% - 40px);
+  max-width: 1280px;
+  margin: 10px auto;
+  min-height: calc(100vh - 80px - 80px);
+  border: 1px solid #2c4154;
+  background-color: #1a1f26;
+  border-radius: 40px;
+  overflow: hidden;
+
+  &_sec3 {
+    max-width: 1280px;
+    background-color: #1a1f26;
+    padding: 40px 50px;
+
+    display: flex;
+    flex-direction: column;
+
+    h2 {
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 30px;
+      color: white;
+      letter-spacing: 2px;
+      margin: 0 10px 10px;
+
+      img {
+        width: 28px;
+        margin-right: 10px;
+        transform: rotate(180deg);
+      }
+    }
+
+    &_p1 {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 16px;
+      color: white;
+      margin: 0 50px 10px;
+
+      img {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+      }
+    }
+
+    &_main {
+      padding: 10px 50px;
+
+      &_top {
+        display: flex;
+        justify-content: flex-start;
+        gap: 40px;
+
+        &_left {
+          display: flex;
+          flex-direction: column;
+          max-width: 500px;
+          width: 100%;
+
+          input {
+            width: 100%;
+            height: 40px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border: 1px solid $_basicActiveColor;
+            background: $gradi2;
+            padding: 10px;
+
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 16px;
+            color: rgb(192, 192, 192);
+          }
+
+          &_nums {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
+            p {
+              font-weight: 400;
+              font-size: 14px;
+              line-height: 20px;
+              color: white;
+              margin: 0;
+            }
+          }
+        }
+
+        &_right {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          justify-content: flex-start;
+          max-width: 500px;
+
+          div {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 70px;
+            border: 2px solid white;
+            border-radius: 10px;
+            cursor: pointer;
+
+            img {
+              zoom: 0.7;
+            }
+          }
+
+          &_sel {
+            background: $gradi2;
+            border-color: #55c8ff !important;
+          }
+        }
+      }
+
+      &_mid {
+        display: flex;
+        align-items: center;
+
+        margin: 30px 0 20px;
+        height: 20px;
+
+        input {
+          display: inline-flex;
+          align-items: center;
+
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+        }
+
+        label {
+          text-align: center;
+          font-weight: 400;
+          font-size: 14px;
+          line-height: 20px;
+          color: white;
+          margin-left: 10px;
+        }
+      }
+
+      &_bot {
+        display: flex;
+        justify-content: space-between;
+        gap: 40px;
+
+        > div {
+          flex: 1;
+          max-width: 800px;
+
+          p {
+            color: white;
+          }
+        }
+
+        button {
+          text-align: left;
+          height: 60px;
+          background: $gradi;
+          border-radius: 6px;
+          font-size: 20px;
+          font-weight: 400;
+          line-height: 26px;
+          color: white;
+          border: none;
+          margin-top: 20px;
+          padding: 18px;
+          width: 500px;
+          position: relative;
+
+          img {
+            position: absolute;
+            top: 20px;
+            right: 10px;
+          }
+        }
+      }
+
+      &_table {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+        margin-top: 30px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        overflow: hidden;
+
+        &_row {
+          width: 100%;
+          padding: 10px 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: $gradi3;
+          height: 50px;
+
+          &:nth-child(odd) {
+            background: $gradi2;
+          }
+
+          &_amount {
+            display: flex;
+            gap: 6px;
+
+            > div:first-of-type {
+              font-weight: 400;
+              font-size: 16px;
+              line-height: 22px;
+              color: white;
+            }
+
+            > div:last-of-type {
+              font-weight: 400;
+              font-size: 16px;
+              line-height: 22px;
+              color: $_basicActiveColor;
+            }
+          }
+
+          &_wallet {
+            display: flex;
+            gap: 6px;
+
+            > div:first-of-type {
+              font-weight: 400;
+              font-size: 16px;
+              line-height: 22px;
+              color: white;
+            }
+
+            > div:last-of-type {
+              font-weight: 400;
+              font-size: 16px;
+              line-height: 22px;
+              color: $_basicActiveColor;
+            }
+          }
+
+          &_status {
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 22px;
+            color: $_basicActiveColor;
+          }
+        }
+      }
+    }
+  }
+}
