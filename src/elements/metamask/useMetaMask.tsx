@@ -58,8 +58,11 @@ export const MetaMaskContextProvider = ({ children }: PropsWithChildren) => {
 
     setWallet({ accounts, balance, chainId });
 
-    await login({ accounts, balance, chainId }).then((response) => {
-      setApiUser(response.data);
+    const res = await login({ accounts, balance, chainId });
+    const data = await res.json();
+    setApiUser({
+      ...data,
+      userId: data.id,
     });
   }, []);
 

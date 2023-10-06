@@ -38,6 +38,7 @@ export default function HomePage() {
   });
 
   const updateValue = (val: number) => {
+    console.log(val)
     const maxV = Math.min(+val.toFixed(8), +wallet.balance);
     const v = Math.max(maxV, 0);
 
@@ -56,45 +57,41 @@ export default function HomePage() {
     }
   }, [time]);
 
-  const getGameF = useCallback(async () => {
-    await getGame(apiUser.userId).then((response) => {
-      //@ts-ignore
-      const data = response.data;
-      setTime(data.timestamp);
-      setBetPlaced(data.canBet);
-      setCurHash(data.md5);
-    });
+  const getGameF = useCallback(async (apiUser) => {
+    const res = await getGame(apiUser.userId);
+    //@ts-ignore
+
+    const data = await res.json();
+    setTime(data.timestamp + 60 - Math.floor(Date.now() / 1000));
+    setBetPlaced(data.canBet);
+    setCurHash(data.md5);
   }, []);
 
   const finishGameF = useCallback(async () => {
-    await finishGame({
+    const res = await finishGame({
       md5: curHash as string,
       userId: apiUser.userId,
       address: wallet.accounts[0],
-    })
-      .then((response) => {
-        //@ts-ignore
-        const data = response.data;
-        const prev = data.previous;
+    });
 
-        setPrevGame({
-          ...prev,
-          sumOfBet: data.sumOfBet,
-          teamWin: data.color === "red" ? team1 : team2,
-          isWin: data.isWin,
-        });
+    //@ts-ignore
+    const data = await res.json();
+    const prev = data.previous;
 
-        const next = data.next;
-        setTime(next.timestamp);
-        setCurHash(next.md5);
+    setPrevGame({
+      ...prev,
+      sumOfBet: data.sumOfBet,
+      teamWin: data.color === "red" ? team1 : team2,
+      isWin: data.isWin,
+    });
 
-        setBetPlaced(false);
-        setSelTeam(null);
-        setEthValue(0);
-      })
-      .then(() => {
-        setTime(60);
-      });
+    const next = data.next;
+    setTime(next.timestamp);
+    setCurHash(next.md5);
+
+    setBetPlaced(false);
+    setSelTeam(null);
+    setEthValue(0);
   }, []);
 
   const placeBetF = useCallback(async () => {
@@ -110,8 +107,11 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    getGameF();
-  }, []);
+
+    console.log(apiUser)
+    if(apiUser)
+    getGameF(apiUser);
+  }, [apiUser]);
 
   return (
     <div className={styles.home}>
@@ -199,12 +199,15 @@ export default function HomePage() {
               <button onClick={() => updateValue(ethValue + 0.000001)}>+</button>
             </div>
             <button
-              disabled={!(hasProvider && wallet.accounts.length > 0) || betPlaced}
+              disabled={!(hasProvider && wallet.accounts.length > 0 && apiUser.balance > 0) || betPlaced}
               onClick={() => {
                 placeBetF();
               }}
             >
               Place Bet
+              {hasProvider}
+              {wallet.accounts.length > 0}
+              {wallet.balance}
             </button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-export const BACKEND_URL = `https://localhost:44352/api/v1`;
+export const BACKEND_URL = `http://localhost:30844/api/v1`;
 
 export const formatBalance = (rawBalance: string) => {
   const balance = (parseInt(rawBalance) / 1000000000000000000).toFixed(2);

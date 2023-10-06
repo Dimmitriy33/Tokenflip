@@ -42,7 +42,7 @@ export const finishGame = (form: { md5: string; userId: string; address: string 
 };
 
 export const getGame = (id: string) => {
-  return fetch(`${BACKEND_URL}/${id}`, {
+  return fetch(`${BACKEND_URL}/game`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
