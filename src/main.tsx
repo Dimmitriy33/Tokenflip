@@ -43,27 +43,12 @@ class AppContainer extends Component<AppProps, AppState> {
 
   render() {
     return (
-      <StrictMode>
-        {/* <MetaMaskUIProvider
-          sdkOptions={{
-            dappMetadata: {
-              name: "Tokenflip",
-              url: window.location.host,
-            },
-            logging: {
-              developerMode: false,
-            },
-            checkInstallationImmediately: false, // This will automatically connect to MetaMask on page load
-          }}
-        >
-          <MainRouter />
-          <Footer />
-        </MetaMaskUIProvider> */}
-        <MetaMaskContextProvider>
-          <MainRouter />
-          <Footer />
-        </MetaMaskContextProvider>
-      </StrictMode>
+      // <StrictMode>
+      <MetaMaskContextProvider>
+        <MainRouter />
+        <Footer />
+      </MetaMaskContextProvider>
+      // </StrictMode>
     );
   }
 }

@@ -3,7 +3,6 @@ import { useState, useEffect, createContext, PropsWithChildren, useContext, useC
 
 import detectEthereumProvider from "@metamask/detect-provider";
 import { BACKEND_URL, formatBalance } from "./utils";
-import { login } from "@/api/apiMain";
 
 export interface WalletState {
   accounts: any[];
@@ -20,6 +19,8 @@ interface MetaMaskContextData {
   isConnecting: boolean;
   connectMetaMask: () => void;
   clearError: () => void;
+  updateBalance: (change: number) => void;
+  updateApiUser: (c: any) => void;
 }
 
 const disconnectedState: WalletState = { accounts: [], balance: "", chainId: "" };
@@ -57,13 +58,6 @@ export const MetaMaskContextProvider = ({ children }: PropsWithChildren) => {
     });
 
     setWallet({ accounts, balance, chainId });
-
-    const res = await login({ accounts, balance, chainId });
-    const data = await res.json();
-    setApiUser({
-      ...data,
-      userId: data.id,
-    });
   }, []);
 
   const updateWalletAndAccounts = useCallback(() => _updateWallet(), [_updateWallet]);
@@ -110,6 +104,16 @@ export const MetaMaskContextProvider = ({ children }: PropsWithChildren) => {
     setIsConnecting(false);
   };
 
+  const updateBalance = (v: number) => {
+    setApiUser({
+      ...(apiUser as any),
+      balance: Math.max(apiUser!.balance + v, 0),
+    });
+  };
+
+  const updateApiUser = (v) => {
+    setApiUser(v);
+  };
   return (
     <MetaMaskContext.Provider
       value={{
@@ -121,6 +125,8 @@ export const MetaMaskContextProvider = ({ children }: PropsWithChildren) => {
         isConnecting,
         connectMetaMask,
         clearError,
+        updateBalance,
+        updateApiUser,
       }}
     >
       {children}

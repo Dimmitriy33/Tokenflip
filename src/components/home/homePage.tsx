@@ -14,11 +14,12 @@ import styles from "./homePage.module.scss";
 import ReactSlider from "react-slider";
 import { useCallback, useEffect, useState } from "react";
 import cx from "classnames";
-import { finishGame, getGame, placeBet } from "@/api/apiMain";
-import { useMetaMask } from "@/elements/metamask/useMetaMask";
+import { finishGame, getGame, login, placeBet } from "@/api/apiMain";
+import { WalletState, useMetaMask } from "@/elements/metamask/useMetaMask";
 
+let delayTimer;
 export default function HomePage() {
-  const { wallet, hasProvider, apiUser } = useMetaMask();
+  const { wallet, hasProvider, apiUser, updateBalance, updateApiUser } = useMetaMask();
   const [team1] = useState("PEPE");
   const [team2] = useState("SHIBA");
   const [val] = useState("ETH");
@@ -29,89 +30,113 @@ export default function HomePage() {
   const [time, setTime] = useState<number | null>(null);
   const [curHash, setCurHash] = useState<string | null>(null);
 
-  const [prevGame, setPrevGame] = useState<IPrevGame | null>({
-    md5: "md5",
-    timestamp: 123,
-    teamWin: "red",
-    isWin: true,
-    sumOfBet: 0.12,
-  });
+  const [prevGame, setPrevGame] = useState<IPrevGame | null>(null);
 
   const updateValue = (val: number) => {
-    console.log(val)
-    const maxV = Math.min(+val.toFixed(8), +wallet.balance);
+    const maxV = Math.min(+val.toFixed(8), apiUser?.balance);
     const v = Math.max(maxV, 0);
 
     setEthValue(v);
   };
 
-  useEffect(() => {
-    if (time != null) {
-      if (time > 0) {
-        setTimeout(() => setTime(time - 1), 1000);
-      } else {
-        if (hasProvider && wallet.accounts.length > 0) {
-          finishGameF();
-        }
-      }
-    }
-  }, [time]);
-
-  const getGameF = useCallback(async (apiUser) => {
-    const res = await getGame(apiUser.userId);
+  const getGameF = useCallback(async () => {
+    const res = await getGame();
     //@ts-ignore
 
     const data = await res.json();
     setTime(data.timestamp + 60 - Math.floor(Date.now() / 1000));
-    setBetPlaced(data.canBet);
+    setBetPlaced(apiUser?.canBet || false);
     setCurHash(data.md5);
   }, []);
 
   const finishGameF = useCallback(async () => {
     const res = await finishGame({
       md5: curHash as string,
-      userId: apiUser.userId,
-      address: wallet.accounts[0],
+      id: apiUser?.userId || 0,
     });
 
     //@ts-ignore
     const data = await res.json();
-    const prev = data.previous;
+    const prev = data.previos;
 
     setPrevGame({
       ...prev,
       sumOfBet: data.sumOfBet,
-      teamWin: data.color === "red" ? team1 : team2,
+      teamWin: data.color === 0 ? team1 : team2,
       isWin: data.isWin,
     });
+    if (data.isWin) {
+      updateBalance(data.sumOfBet);
+    }
 
     const next = data.next;
-    setTime(next.timestamp);
+    setTime(next.timestamp + 60 - Math.floor(Date.now() / 1000));
     setCurHash(next.md5);
 
     setBetPlaced(false);
     setSelTeam(null);
     setEthValue(0);
-  }, []);
+  }, [curHash, apiUser]);
 
   const placeBetF = useCallback(async () => {
-    await placeBet({
-      color: selTeam === team1 ? "red" : "black",
-      userId: apiUser.userId,
-      md5: curHash as string,
-      address: wallet.accounts[0],
-      betSum: ethValue,
-    }).then(() => {
-      setBetPlaced(true);
-    });
-  }, []);
+    if (apiUser) {
+      await placeBet({
+        color: selTeam === team1 ? 0 : 1,
+        userId: apiUser.userId,
+        md5: curHash as string,
+        address: wallet.accounts[0],
+        betSum: ethValue,
+      }).then(() => {
+        setBetPlaced(true);
+        updateBalance(ethValue * -1);
+      });
+    }
+  }, [apiUser, curHash, ethValue, wallet, selTeam]);
+
+  const loginF = useCallback(
+    async (wallet: WalletState) => {
+      const res = await login(wallet);
+      const data = await res.json();
+      updateApiUser({
+        ...data,
+        userId: data.id,
+      });
+    },
+    [updateApiUser]
+  );
 
   useEffect(() => {
+    // clearTimeout(delayTimer);
+    // delayTimer = setTimeout(function () {
+    const wAcc = wallet.accounts[0];
+    if (hasProvider && wAcc && wAcc !== apiUser?.address) {
+      loginF(wallet).then(() => {
+        getGameF();
+      });
+    }
+    // }, 10); // Will do the ajax stuff after 1000 ms, or 1 s
+  }, [wallet]);
 
-    console.log(apiUser)
-    if(apiUser)
-    getGameF(apiUser);
-  }, [apiUser]);
+  useEffect(() => {
+    if (time != null) {
+      if (time > 0) {
+        setTimeout(() => setTime(time - 1), 1000);
+      } else {
+        finishGameF();
+        // if (hasProvider && wallet.accounts.length > 0) {
+        //   finishGameF();
+        // } else {
+        //   getGameF();
+        // }
+      }
+    }
+  }, [time]);
+
+  useEffect(() => {
+    if (time === null) {
+      getGameF();
+    }
+  }, []);
 
   return (
     <div className={styles.home}>
@@ -199,15 +224,14 @@ export default function HomePage() {
               <button onClick={() => updateValue(ethValue + 0.000001)}>+</button>
             </div>
             <button
-              disabled={!(hasProvider && wallet.accounts.length > 0 && apiUser.balance > 0) || betPlaced}
+              disabled={
+                !(hasProvider && wallet.accounts.length > 0 && apiUser?.balance > 0) || betPlaced || selTeam === null
+              }
               onClick={() => {
                 placeBetF();
               }}
             >
               Place Bet
-              {hasProvider}
-              {wallet.accounts.length > 0}
-              {wallet.balance}
             </button>
           </div>
         </div>

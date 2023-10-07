@@ -17,7 +17,7 @@ export const login = (form: WalletState) => {
   });
 };
 
-export const placeBet = (form: { color: string; userId: string; md5: string; address: string; betSum: number }) => {
+export const placeBet = (form: { color: number; userId: string; md5: string; address: string; betSum: number }) => {
   return fetch(`${BACKEND_URL}/flipshistory`, {
     method: "POST",
     headers: {
@@ -29,7 +29,7 @@ export const placeBet = (form: { color: string; userId: string; md5: string; add
   });
 };
 
-export const finishGame = (form: { md5: string; userId: string; address: string }) => {
+export const finishGame = (form: { md5: string; id: string; }) => {
   return fetch(`${BACKEND_URL}/game`, {
     method: "PUT",
     headers: {
@@ -41,7 +41,7 @@ export const finishGame = (form: { md5: string; userId: string; address: string 
   });
 };
 
-export const getGame = (id: string) => {
+export const getGame = () => {
   return fetch(`${BACKEND_URL}/game`, {
     method: "GET",
     headers: {
