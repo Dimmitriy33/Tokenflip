@@ -34,7 +34,6 @@ export default function HomePage() {
   const [users, setUsers] = useState<Array<any>>([]);
 
   const [fullUsers, setFullUsers] = useState<Array<any>>([]);
-  const [fullTime, setFullTime] = useState<number>(0);
 
   const [prevGame, setPrevGame] = useState<IPrevGame | null>(null);
   const [resAnim, serResAnim] = useState<boolean>(false);
@@ -72,8 +71,7 @@ export default function HomePage() {
       setTime(next.timestamp + 60 - Math.floor(Date.now() / 1000));
       setUsers([]);
       setFullUsers([data]);
-      setFullTime(0);
-      getGameUsersF(data.timestamp + 60 - Math.floor(Date.now() / 1000));
+      getGameUsersF();
       setCurHash(next.md5);
       setBetPlaced(false);
       setSelTeam(null);
@@ -90,7 +88,7 @@ export default function HomePage() {
     const data = await res.json();
     setTime(data.timestamp + 60 - Math.floor(Date.now() / 1000));
     if (users.length === 0) {
-      getGameUsersF(data.timestamp + 60 - Math.floor(Date.now() / 1000));
+      getGameUsersF();
     }
     setBetPlaced(apiUser?.canBet || false);
     setCurHash(data.md5);
@@ -136,25 +134,23 @@ export default function HomePage() {
     [updateApiUser]
   );
 
-  const getGameUsersF = useCallback(async (time: any) => {
+  const getGameUsersF = useCallback(async () => {
     const res = await getGameUsers();
     //@ts-ignore
     const data = await res.json();
     setFullUsers(data);
-    setFullTime(time);
   }, []);
 
   useEffect(() => {
-    if (fullUsers.length > 0) {
-      for (let index = 0; index < fullUsers.length; index++) {
-        const el = fullUsers[index];
-        const randomDelay = Math.floor(Math.random() * fullTime * 1000);
-        setTimeout(() => {
-          setUsers([...users, el]);
-        }, randomDelay);
-      }
+    const randomDelay = Math.floor(Math.random() * 3 * 1000);
+
+    if (fullUsers.length > 0 && users.length < fullUsers.length) {
+      const el = fullUsers[users.length];
+      setTimeout(() => {
+        setUsers([...users, el]);
+      }, randomDelay);
     }
-  }, [fullUsers]);
+  }, [fullUsers, users]);
 
   useEffect(() => {
     // clearTimeout(delayTimer);
