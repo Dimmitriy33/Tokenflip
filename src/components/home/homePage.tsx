@@ -142,17 +142,6 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const randomDelay = Math.floor(Math.random() * 3 * 1000);
-
-    if (fullUsers.length > 0 && users.length < fullUsers.length) {
-      const el = fullUsers[users.length];
-      setTimeout(() => {
-        setUsers([...users, el]);
-      }, randomDelay);
-    }
-  }, [fullUsers, users]);
-
-  useEffect(() => {
     // clearTimeout(delayTimer);
     // delayTimer = setTimeout(function () {
     const wAcc = wallet.accounts[0];
@@ -167,7 +156,10 @@ export default function HomePage() {
   useEffect(() => {
     if (time != null) {
       if (time > 0) {
-        setTimeout(() => setTime(time - 1), 1000);
+        setTimeout(() => {
+          setTime(time - 1);
+          setUsers(fullUsers.slice(0, 30 - time / 2));
+        }, 1000);
       } else {
         finishGameF();
         // if (hasProvider && wallet.accounts.length > 0) {
