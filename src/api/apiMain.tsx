@@ -17,6 +17,17 @@ export const login = (form: WalletState) => {
   });
 };
 
+export const getUserBets = (id: string) => {
+  return fetch(`${BACKEND_URL}/flipshistory?id=${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).catch((err) => {
+    console.error(err.message);
+  });
+};
+
 export const placeBet = (form: { color: number; userId: string; md5: string; address: string; betSum: number }) => {
   return fetch(`${BACKEND_URL}/flipshistory`, {
     method: "POST",
