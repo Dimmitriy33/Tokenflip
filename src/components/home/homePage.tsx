@@ -33,8 +33,6 @@ export default function HomePage() {
   const [curHash, setCurHash] = useState<string | null>(null);
   const [users, setUsers] = useState<Array<any>>([]);
 
-  const [fullUsers, setFullUsers] = useState<Array<any>>([]);
-
   const [prevGame, setPrevGame] = useState<IPrevGame | null>(null);
   const [resAnim, serResAnim] = useState<boolean>(false);
   const [showRes, setShowRes] = useState<boolean>(false);
@@ -70,7 +68,6 @@ export default function HomePage() {
       const next = data.next;
       setTime(next.timestamp + 60 - Math.floor(Date.now() / 1000));
       setUsers([]);
-      setFullUsers([]);
       getGameUsersF();
       setCurHash(next.md5);
       setBetPlaced(false);
@@ -138,19 +135,18 @@ export default function HomePage() {
     const res = await getGameUsers();
     //@ts-ignore
     const data = await res.json();
-    setFullUsers(data);
 
-    addUser(0);
+    addUser(0, data);
   }, []);
 
-  const addUser = (time: number) => {
+  const addUser = (time: number, data: Array<any>) => {
     setTimeout(() => {
       const uL = users.length;
-      const user = fullUsers[uL];
+      const user = data[uL];
       if (user && users.findIndex((v) => v.id === user.id) === -1) {
         setUsers([...users, user]);
-        if (uL + 1 < fullUsers.length) {
-          addUser(time + Math.floor(Math.random() * (2000 - 200 + 1) + 200));
+        if (uL + 1 < data.length) {
+          addUser(time + Math.floor(Math.random() * (2000 - 200 + 1) + 200), data);
         }
       }
     }, time);
