@@ -124,6 +124,12 @@
             -webkit-animation: 2s linear 0s normal none infinite running rot;
           }
 
+          video {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+          }
+
           &_selected {
             border-bottom: 6px solid $_basicActiveColor;
             border-radius: 4px;

@@ -1,6 +1,8 @@
 // eslint-disable-next-line css-modules/no-unused-class
 import coin1 from "images/coin1.svg";
 import coin2 from "images/coin2.svg";
+import coin1G from "images/coin1.gif";
+import coin2G from "images/coin2.gif";
 import arrow from "images/arrow.svg";
 import bank from "images/bank.png";
 import chel from "images/chel.svg";
@@ -17,7 +19,7 @@ import cx from "classnames";
 import { finishGame, getGame, login, placeBet } from "@/api/apiMain";
 import { WalletState, useMetaMask } from "@/elements/metamask/useMetaMask";
 
-let delayTimer;
+// let delayTimer;
 export default function HomePage() {
   const { wallet, hasProvider, apiUser, updateBalance, updateApiUser } = useMetaMask();
   const [team1] = useState("PEPE");
@@ -31,12 +33,42 @@ export default function HomePage() {
   const [curHash, setCurHash] = useState<string | null>(null);
 
   const [prevGame, setPrevGame] = useState<IPrevGame | null>(null);
+  const [resAnim, serResAnim] = useState<boolean>();
 
   const updateValue = (val: number) => {
     const maxV = Math.min(+val.toFixed(8), apiUser?.balance);
     const v = Math.max(maxV, 0);
 
     setEthValue(v);
+  };
+
+  const showResultAnim = (data) => {
+    serResAnim(true);
+
+    setTimeout(() => {
+      const prev = data.previos;
+
+      setPrevGame({
+        ...prev,
+        sumOfBet: data.sumOfBet,
+        teamWin: data.color === 0 ? team1 : team2,
+        isWin: data.isWin,
+      });
+      if (data.isWin) {
+        updateBalance(data.sumOfBet);
+      }
+    }, 7200);
+
+    setTimeout(() => {
+      const next = data.next;
+      setTime(next.timestamp + 60 - Math.floor(Date.now() / 1000));
+      setCurHash(next.md5);
+
+      setBetPlaced(false);
+      setSelTeam(null);
+      setEthValue(0);
+      serResAnim(false);
+    }, 10000);
   };
 
   const getGameF = useCallback(async () => {
@@ -57,25 +89,8 @@ export default function HomePage() {
 
     //@ts-ignore
     const data = await res.json();
-    const prev = data.previos;
 
-    setPrevGame({
-      ...prev,
-      sumOfBet: data.sumOfBet,
-      teamWin: data.color === 0 ? team1 : team2,
-      isWin: data.isWin,
-    });
-    if (data.isWin) {
-      updateBalance(data.sumOfBet);
-    }
-
-    const next = data.next;
-    setTime(next.timestamp + 60 - Math.floor(Date.now() / 1000));
-    setCurHash(next.md5);
-
-    setBetPlaced(false);
-    setSelTeam(null);
-    setEthValue(0);
+    showResultAnim(data);
   }, [curHash, apiUser]);
 
   const placeBetF = useCallback(async () => {
@@ -96,6 +111,7 @@ export default function HomePage() {
   const loginF = useCallback(
     async (wallet: WalletState) => {
       const res = await login(wallet);
+      //@ts-ignore
       const data = await res.json();
       updateApiUser({
         ...data,
@@ -163,7 +179,6 @@ export default function HomePage() {
             >
               <img src={coin1} alt="coin1" />
               <p>Team {team1}</p>
-              {/* <img src={coin2} alt="coin2" /> */}
             </div>
             <div className={styles.home_sec1_block1_mid_pep2}>
               <img src={arrow} alt="arrow" />
@@ -186,31 +201,38 @@ export default function HomePage() {
           </div>
 
           <div className={styles.home_sec1_block2_mid}>
-            <p>Coin flipping in</p>
-            <div className={styles.home_sec1_block2_mid_time}>
-              <img src={timer} alt="timer" />
-              <p>{time || 0} sec</p>
-            </div>
-
-            <ReactSlider
-              className="horizontal-slider"
-              thumbClassName="example-thumb"
-              trackClassName="example-track"
-              value={time !== null ? time : 60}
-              max={60}
-              renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
-            />
-
-            <div className={styles.home_sec1_block2_mid_bot}>
-              <div>
-                <div>Coin</div>
-                <div>{selTeam == null ? "Not" : ""} Selected</div>
-              </div>
-              <div>
-                <div>Reward</div>
-                <div>{ethValue * 2}</div>
-              </div>
-            </div>
+            {resAnim ? (
+              <>
+                <p>{prevGame?.isWin ? "YOU WON" : "YOU LOST"}</p>
+                <img src={prevGame?.teamWin === team1 ? coin1G : coin2G} alt="coin win" />
+              </>
+            ) : (
+              <>
+                <p>Coin flipping in</p>
+                <div className={styles.home_sec1_block2_mid_time}>
+                  <img src={timer} alt="timer" />
+                  <p>{time || 0} sec</p>
+                </div>
+                <ReactSlider
+                  className="horizontal-slider"
+                  thumbClassName="example-thumb"
+                  trackClassName="example-track"
+                  value={time !== null ? time : 60}
+                  max={60}
+                  renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+                />
+                <div className={styles.home_sec1_block2_mid_bot}>
+                  <div>
+                    <div>Coin</div>
+                    <div>{selTeam == null ? "Not" : ""} Selected</div>
+                  </div>
+                  <div>
+                    <div>Reward</div>
+                    <div>{ethValue * 2}</div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className={styles.home_sec1_block2_bot}>
@@ -255,6 +277,9 @@ export default function HomePage() {
               onClick={() => setSelTeam(team2)}
             >
               <img src={coin2} alt="coin2" />
+              {/* <video autoPlay loop>
+                <source src={coin2V} />
+              </video> */}
               <p>Team {team2}</p>
             </div>
             <div className={styles.home_sec1_block1_mid_pep2}>

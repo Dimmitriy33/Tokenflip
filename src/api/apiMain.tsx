@@ -29,7 +29,7 @@ export const placeBet = (form: { color: number; userId: string; md5: string; add
   });
 };
 
-export const finishGame = (form: { md5: string; id: string; }) => {
+export const finishGame = (form: { md5: string; id: string }) => {
   return fetch(`${BACKEND_URL}/game`, {
     method: "PUT",
     headers: {
