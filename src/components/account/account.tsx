@@ -4,12 +4,14 @@ import cash from "images/cash.svg";
 import bg_2 from "images/bg_3.svg";
 import arrowUp from "images/arrow_up.png";
 import styles from "./account.module.scss";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import coin1 from "images/coin1.svg";
 import coin2 from "images/coin2.svg";
 import cup from "images/cup.svg";
 import AvatarImage from "@/elements/avatarImage/avi";
-import { useMetaMask } from "@/elements/metamask/useMetaMask";
+import { WalletState, useMetaMask } from "@/elements/metamask/useMetaMask";
+import { getUserBets, login } from "@/api/apiMain";
+import { IRes } from "../stats/stats";
 
 const tableData2 = [
   {
@@ -50,12 +52,101 @@ const tableData2 = [
 ];
 
 export default function AccountPage() {
-  const { apiUser } = useMetaMask();
-
-  // const [ballance] = useState(0.05647);
+  const [winCount, setWinCount] = useState(0);
+  const [loseCount, setLoseCount] = useState(0);
+  const [team1] = useState("PEPE");
+  const [team2] = useState("SHIBA");
   const [val] = useState("ETH");
-  const [winCount] = useState(123);
-  const [loseCount] = useState(12);
+
+  const { wallet, hasProvider, apiUser, updateApiUser } = useMetaMask();
+  const [res, setRes] = useState<Array<IRes>>([]);
+  // const [u, setU] = useState();
+
+  const getHistory = useCallback(
+    async (id: number) => {
+      const res = await getUserBets(id);
+
+      //@ts-ignore
+      const data = await res.json();
+      setWinCount(data.filter((v: IRes) => v.isWin).length);
+      setLoseCount(data.filter((v: IRes) => !v.isWin).length);
+
+      setRes(data);
+    },
+    [apiUser]
+  );
+
+  const loginF = useCallback(
+    async (wallet: WalletState) => {
+      const res = await login(wallet);
+      //@ts-ignore
+      const data = await res.json();
+      updateApiUser({
+        ...data,
+        userId: data.id,
+      });
+
+      if (data.id != null) {
+        getHistory(data.id);
+      }
+    },
+    [updateApiUser]
+  );
+
+  useEffect(() => {
+    const wAcc = wallet.accounts[0];
+    if (hasProvider && wAcc && wAcc !== apiUser?.address) {
+      loginF(wallet);
+    } else if (apiUser?.id) {
+      getHistory(apiUser?.id);
+    }
+  }, [wallet]);
+
+  // useEffect(() => {
+  //   if (apiUser) {
+  //     getHistory();
+  //     setU(apiUser?.id);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   if (apiUser && apiUser?.id !== u?.id) {
+  //     getHistory();
+  //     setU(apiUser?.id);
+  //   }
+  // }, [apiUser]);
+
+  const getIcon = (isWin: boolean, color: 0 | 1) => {
+    if (isWin) {
+      if (color === 0) {
+        return coin1;
+      }
+
+      return coin2;
+    } else {
+      if (color === 0) {
+        return coin2;
+      }
+
+      return coin1;
+    }
+  };
+
+  const getTeam = (isWin: boolean, color: 0 | 1) => {
+    if (isWin) {
+      if (color === 0) {
+        return team1;
+      }
+
+      return team2;
+    } else {
+      if (color === 0) {
+        return team2;
+      }
+
+      return team1;
+    }
+  };
 
   return (
     <div className={styles.home}>
@@ -105,7 +196,41 @@ export default function AccountPage() {
             </div>
           </div>
 
-          <div className={styles.home_sec5_main_table}>
+          <div className={styles.home_sec5_main}>
+            <div className={styles.home_sec5_main_table}>
+              {res &&
+                res.map((v, i) => (
+                  <div key={i} className={styles.home_sec5_main_table_row}>
+                    <div className={styles.home_sec5_main_table_row_game}>
+                      <div>Game:</div>
+                      <div>{v.id}</div>
+                    </div>
+                    <div className={styles.home_sec5_main_table_row_bal}>
+                      <div>Balance({val}):</div>
+                      <div style={{ color: v.sumOfBet && v.isWin ? "green" : "red" }}>
+                        {`${v.isWin === false ? "-" : ""}${v.sumOfBet.toFixed(8)}`}
+                      </div>
+                    </div>
+                    <div className={styles.home_sec5_main_table_row_bal}>
+                      <div>Hash:</div>
+                      <div style={{ width: "100%", maxWidth: 180, overflowX: "auto" }}>{v.md5}</div>
+                    </div>
+                    <div className={styles.home_sec5_main_table_row_bal}>
+                      <div>Secret:</div>
+                      <div style={{ width: "100%", maxWidth: 180, overflowX: "auto" }}>{v.secret}</div>
+                    </div>
+                    <div className={styles.home_sec5_main_table_row_win}>
+                      <div>WINNER:</div>
+                      <img src={getIcon(v.isWin, v.color)} alt="icon" />
+                      <div>Team {getTeam(v.isWin, v.color)}</div>
+                    </div>
+                  </div>
+                ))}
+              {(!res || res.length === 0) && <div className={styles.home_sec5_main_table_zero}>No Results</div>}
+            </div>
+          </div>
+
+          {/* <div className={styles.home_sec5_main_table}>
             {tableData2.map((v, i) => (
               <div key={i} className={styles.home_sec5_main_table_row}>
                 <div className={styles.home_sec5_main_table_row_game}>
@@ -126,7 +251,7 @@ export default function AccountPage() {
               </div>
             ))}
             {tableData2.length === 0 && <div className={styles.home_sec5_main_table_zero}>No Results</div>}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

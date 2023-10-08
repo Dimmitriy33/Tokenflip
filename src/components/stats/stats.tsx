@@ -46,7 +46,7 @@ import { WalletState, useMetaMask } from "@/elements/metamask/useMetaMask";
 //   },
 // ];
 
-interface IRes {
+export interface IRes {
   id: number;
   userId: number;
   sumOfBet: number;
