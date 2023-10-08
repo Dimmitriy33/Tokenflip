@@ -160,7 +160,7 @@ export default function HomePage() {
           setTime(time - 1);
 
           const user = fullUsers[Math.max(30 - time / 2, 0)];
-          if (users.findIndex((v) => v.id === user.id) === -1 && user) {
+          if (user && users.findIndex((v) => v.id === user.id) === -1) {
             setUsers([...users, user]);
           }
         }, 1000);
@@ -221,7 +221,8 @@ export default function HomePage() {
               {users
                 .filter((v) => v?.color === 0)
                 .map((v) => v.sumOfBet)
-                .reduce((partialSum, a) => partialSum + a, 0)}
+                .reduce((partialSum, a) => partialSum + a, 0)
+                .toFixed(8)}
             </p>
           </div>
         </div>
@@ -335,7 +336,8 @@ export default function HomePage() {
               {users
                 .filter((v) => v?.color === 1)
                 .map((v) => v.sumOfBet)
-                .reduce((partialSum, a) => partialSum + a, 0)}
+                .reduce((partialSum, a) => partialSum + a, 0)
+                .toFixed(8)}
             </p>
           </div>
         </div>

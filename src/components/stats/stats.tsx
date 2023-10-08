@@ -75,12 +75,14 @@ export default function StatsPage() {
   }, [apiUser]);
 
   useEffect(() => {
-    getHistory();
+    if (apiUser) {
+      getHistory();
+    }
     setU(apiUser?.id);
   }, []);
 
   useEffect(() => {
-    if (apiUser?.id !== u?.id) {
+    if (apiUser && apiUser?.id !== u?.id) {
       getHistory();
       setU(apiUser?.id);
     }
