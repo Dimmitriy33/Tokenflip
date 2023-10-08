@@ -364,7 +364,7 @@ export default function HomePage() {
           <div className={styles.home_sec2_el_top}>
             <div>
               <img src={pers} alt="perc" />
-              <div>87</div>
+              <div>{users.filter((v) => v.color === 0).length}</div>
             </div>
             <p>Team {team1}</p>
           </div>
@@ -412,7 +412,7 @@ export default function HomePage() {
           <div className={styles.home_sec2_el_top}>
             <div>
               <img src={pers} alt="perc" />
-              <div>69</div>
+              <div>{users.filter((v) => v.color === 1).length}</div>
             </div>
             <p>Team {team2}</p>
           </div>
