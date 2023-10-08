@@ -51,3 +51,14 @@ export const getGame = () => {
     console.error(err.message);
   });
 };
+
+export const getGameUsers = () => {
+  return fetch(`${BACKEND_URL}/users/bets`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).catch((err) => {
+    console.error(err.message);
+  });
+};

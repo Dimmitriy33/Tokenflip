@@ -16,7 +16,7 @@ import styles from "./homePage.module.scss";
 import ReactSlider from "react-slider";
 import { useCallback, useEffect, useState } from "react";
 import cx from "classnames";
-import { finishGame, getGame, login, placeBet } from "@/api/apiMain";
+import { finishGame, getGame, getGameUsers, login, placeBet } from "@/api/apiMain";
 import { WalletState, useMetaMask } from "@/elements/metamask/useMetaMask";
 
 // let delayTimer;
@@ -31,6 +31,7 @@ export default function HomePage() {
   const [selTeam, setSelTeam] = useState<string | null>(null);
   const [time, setTime] = useState<number | null>(null);
   const [curHash, setCurHash] = useState<string | null>(null);
+  const [users, setUsers] = useState<Array<any>>([]);
 
   const [prevGame, setPrevGame] = useState<IPrevGame | null>(null);
   const [resAnim, serResAnim] = useState<boolean>(false);
@@ -43,7 +44,7 @@ export default function HomePage() {
     setEthValue(v);
   };
 
-  const showResultAnim = (data) => {
+  const showResultAnim = (data: any) => {
     serResAnim(true);
     setShowRes(false);
 
@@ -66,8 +67,9 @@ export default function HomePage() {
     setTimeout(() => {
       const next = data.next;
       setTime(next.timestamp + 60 - Math.floor(Date.now() / 1000));
+      setUsers([]);
+      getGameUsersF(data.timestamp + 60 - Math.floor(Date.now() / 1000));
       setCurHash(next.md5);
-
       setBetPlaced(false);
       setSelTeam(null);
       setEthValue(0);
@@ -82,6 +84,9 @@ export default function HomePage() {
 
     const data = await res.json();
     setTime(data.timestamp + 60 - Math.floor(Date.now() / 1000));
+    if (users.length === 0) {
+      getGameUsersF(data.timestamp + 60 - Math.floor(Date.now() / 1000));
+    }
     setBetPlaced(apiUser?.canBet || false);
     setCurHash(data.md5);
   }, []);
@@ -121,6 +126,22 @@ export default function HomePage() {
       updateApiUser({
         ...data,
         userId: data.id,
+      });
+    },
+    [updateApiUser]
+  );
+
+  const getGameUsersF = useCallback(
+    async (time: any) => {
+      const res = await getGameUsers();
+      //@ts-ignore
+      const data = await res.json();
+
+      data.forEach((el: any) => {
+        const randomDelay = Math.floor(Math.random() * time * 1000);
+        setTimeout(() => {
+          setUsers([...users, el]);
+        }, randomDelay);
       });
     },
     [updateApiUser]
@@ -352,16 +373,16 @@ export default function HomePage() {
           </div>
 
           <div className={styles.home_sec2_list}>
-            {[1, 2, 3].map((_v, i) => (
+            {users.map((v, i) => (
               <div
-                key={team1 + "_" + i}
+                key={v.id}
                 className={[styles.home_sec2_list_item, i !== 0 ? styles.home_sec2_list_notActive : ""].join(" ")}
               >
                 <div className={styles.home_sec2_list_item_left}>
                   <AvatarImage creds="LE" img={chel} />
-                  <p>Leo K</p>
+                  <p>{(v.address as string).substring(0, 8)}</p>
                 </div>
-                <div className={styles.home_sec2_list_item_mid}>0.0456</div>
+                <div className={styles.home_sec2_list_item_mid}>{(v.sumOfBet as number).toFixed(8)}</div>
                 <button>
                   <img src={persPlus} alt="persPlus" />
                   Join
