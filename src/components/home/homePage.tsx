@@ -373,22 +373,41 @@ export default function HomePage() {
           </div>
 
           <div className={styles.home_sec2_list}>
-            {users.map((v, i) => (
+            {users
+              .filter((v) => v.color === 0)
+              .map((v, i) => (
+                <div
+                  key={v.id}
+                  className={[styles.home_sec2_list_item, i !== 0 ? styles.home_sec2_list_notActive : ""].join(" ")}
+                >
+                  <div className={styles.home_sec2_list_item_left}>
+                    <AvatarImage creds="LE" img={chel} />
+                    <p>{(v.address as string).substring(0, 8)}</p>
+                  </div>
+                  <div className={styles.home_sec2_list_item_mid}>{(v.sumOfBet as number).toFixed(8)}</div>
+                  <button>
+                    <img src={persPlus} alt="persPlus" />
+                    Join
+                  </button>
+                </div>
+              ))}
+
+            {/* {users.map((_v, i) => (
               <div
-                key={v.id}
+                key={team1 + "_" + i}
                 className={[styles.home_sec2_list_item, i !== 0 ? styles.home_sec2_list_notActive : ""].join(" ")}
               >
                 <div className={styles.home_sec2_list_item_left}>
                   <AvatarImage creds="LE" img={chel} />
-                  <p>{(v.address as string).substring(0, 8)}</p>
+                  <p>Leo K</p>
                 </div>
-                <div className={styles.home_sec2_list_item_mid}>{(v.sumOfBet as number).toFixed(8)}</div>
+                <div className={styles.home_sec2_list_item_mid}>0.0456</div>
                 <button>
                   <img src={persPlus} alt="persPlus" />
                   Join
                 </button>
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
 
@@ -402,7 +421,30 @@ export default function HomePage() {
           </div>
 
           <div className={cx([styles.home_sec2_list, styles.home_sec2_listv2])}>
-            {[1, 2, 3].map((_v, i) => (
+            {users
+              .filter((v) => v.color === 1)
+              .map((v, i) => (
+                <div
+                  key={v.id}
+                  className={cx([
+                    styles.home_sec2_list_item,
+                    styles.home_sec2_listv2_item,
+                    i !== 0 ? styles.home_sec2_list_notActive : "",
+                  ])}
+                >
+                  <div className={styles.home_sec2_list_item_left}>
+                    <AvatarImage creds="LE" img={chel} />
+                    <p>{(v.address as string).substring(0, 8)}</p>
+                  </div>
+                  <div className={styles.home_sec2_list_item_mid}>{(v.sumOfBet as number).toFixed(8)}</div>
+                  <button>
+                    <img src={persPlus} alt="persPlus" />
+                    Join
+                  </button>
+                </div>
+              ))}
+
+            {/* {[1, 2, 3].map((_v, i) => (
               <div
                 key={team2 + "_" + i}
                 className={cx([
@@ -421,7 +463,7 @@ export default function HomePage() {
                   Join
                 </button>
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>
