@@ -37,7 +37,7 @@ export default function HomePage() {
   const [showRes, setShowRes] = useState<boolean>(false);
 
   const updateValue = (val: number) => {
-    const maxV = Math.min(+val.toFixed(8), apiUser?.balance);
+    const maxV = apiUser?.balance ? Math.min(+val.toFixed(8), apiUser.balance) : 0;
     const v = Math.max(maxV, 0);
 
     setEthValue(v);
@@ -256,7 +256,10 @@ export default function HomePage() {
             </div>
             <button
               disabled={
-                !(hasProvider && wallet.accounts.length > 0 && apiUser?.balance > 0) || betPlaced || selTeam === null
+                !(hasProvider && wallet.accounts.length > 0 && apiUser?.balance > 0) ||
+                betPlaced ||
+                selTeam === null ||
+                resAnim
               }
               onClick={() => {
                 placeBetF();
