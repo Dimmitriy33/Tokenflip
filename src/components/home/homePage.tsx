@@ -158,7 +158,11 @@ export default function HomePage() {
       if (time > 0) {
         setTimeout(() => {
           setTime(time - 1);
-          setUsers(fullUsers.slice(0, 30 - time / 2));
+
+          const user = fullUsers[Math.max(30 - time / 2, 0)];
+          if (users.findIndex((v) => v.id === user.id) === -1) {
+            setUsers([...users, user]);
+          }
         }, 1000);
       } else {
         finishGameF();
