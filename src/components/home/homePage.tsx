@@ -217,7 +217,12 @@ export default function HomePage() {
               <img src={bank} alt="bank" />
               <div>Bet Placed</div>
             </div>
-            <p>0.0546</p>
+            <p>
+              {users
+                .filter((v) => v.color === 0)
+                .map((v) => v.sumOfBet)
+                .reduce((partialSum, a) => partialSum + a, 0)}
+            </p>
           </div>
         </div>
 
@@ -326,13 +331,44 @@ export default function HomePage() {
               <img src={bank} alt="bank" />
               <div>Bet Placed</div>
             </div>
-            <p>0.00</p>
+            <p>
+              {users
+                .filter((v) => v.color === 1)
+                .map((v) => v.sumOfBet)
+                .reduce((partialSum, a) => partialSum + a, 0)}
+            </p>
           </div>
         </div>
       </div>
 
       {prevGame && (
         <div className={styles.home_table}>
+          {["cur"].map((v, i) => (
+            <div key={i} className={styles.home_table_row}>
+              <div className={styles.home_table_row_game}>
+                <div>Current game ★</div>
+              </div>
+
+              <div className={styles.home_table_row_game}>
+                <div>Hash:</div>
+                <div>{curHash}</div>
+              </div>
+
+              {betPlaced && (
+                <div className={styles.home_table_row_bal}>
+                  <div>Bet:</div>
+                  <div>{`${ethValue} ${val}`}</div>
+                </div>
+              )}
+
+              {betPlaced && (
+                <div className={styles.home_table_row_win}>
+                  <div>TEAM:</div>
+                  <div>{selTeam}</div>
+                </div>
+              )}
+            </div>
+          ))}
           {([prevGame] as IPrevGame[]).map((v, i) => (
             <div key={i} className={styles.home_table_row}>
               <div className={styles.home_table_row_game}>
