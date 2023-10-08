@@ -8,7 +8,6 @@
       //this is should be sync with aliases in webpack
       "@/*": ["src/*"],
       "images/*": ["src/assets/images/*"],
-      "videos/*": ["src/assets/videos/*"],
       "fonts/*": ["src/assets/fonts/*"]
     },
     "jsx": "react-jsx",

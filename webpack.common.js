@@ -117,19 +117,6 @@ module.exports = function (env, argv) {
             },
           },
         },
-        // rule for videos
-        {
-          test: /\.mp4$/,
-          use: [
-            {
-              loader: "file-loader",
-              options: {
-                name: "[name].[ext]",
-                outputPath: "video",
-              },
-            },
-          ],
-        },
         // rule for svg-images
         {
           test: /\.(svg)(\?.*)?$/, // for reducing file-size: OptimizeCSSAssetsPlugin > cssnano > SVGO, that congigured in webpack.prod.js

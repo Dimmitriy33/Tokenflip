@@ -33,6 +33,9 @@ export default function HomePage() {
   const [curHash, setCurHash] = useState<string | null>(null);
   const [users, setUsers] = useState<Array<any>>([]);
 
+  const [fullUsers, setFullUsers] = useState<Array<any>>([]);
+  const [fullTime, setFullTime] = useState<number>(0);
+
   const [prevGame, setPrevGame] = useState<IPrevGame | null>(null);
   const [resAnim, serResAnim] = useState<boolean>(false);
   const [showRes, setShowRes] = useState<boolean>(false);
@@ -68,6 +71,8 @@ export default function HomePage() {
       const next = data.next;
       setTime(next.timestamp + 60 - Math.floor(Date.now() / 1000));
       setUsers([]);
+      setFullUsers([data]);
+      setFullTime(0);
       getGameUsersF(data.timestamp + 60 - Math.floor(Date.now() / 1000));
       setCurHash(next.md5);
       setBetPlaced(false);
@@ -131,21 +136,25 @@ export default function HomePage() {
     [updateApiUser]
   );
 
-  const getGameUsersF = useCallback(
-    async (time: any) => {
-      const res = await getGameUsers();
-      //@ts-ignore
-      const data = await res.json();
+  const getGameUsersF = useCallback(async (time: any) => {
+    const res = await getGameUsers();
+    //@ts-ignore
+    const data = await res.json();
+    setFullUsers(data);
+    setFullTime(time);
+  }, []);
 
-      data.forEach((el: any) => {
-        const randomDelay = Math.floor(Math.random() * time * 1000);
+  useEffect(() => {
+    if (fullUsers.length > 0) {
+      for (let index = 0; index < fullUsers.length; index++) {
+        const el = fullUsers[index];
+        const randomDelay = Math.floor(Math.random() * fullTime * 1000);
         setTimeout(() => {
           setUsers([...users, el]);
         }, randomDelay);
-      });
-    },
-    [updateApiUser]
-  );
+      }
+    }
+  }, [fullUsers]);
 
   useEffect(() => {
     // clearTimeout(delayTimer);
