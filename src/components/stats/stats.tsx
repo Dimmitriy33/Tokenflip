@@ -3,48 +3,48 @@ import coin1 from "images/coin1.svg";
 import coin2 from "images/coin2.svg";
 import stats from "images/stats.svg";
 import styles from "./stats.module.scss";
-import { getUserBets } from "@/api/apiMain";
+import { getUserBets, login } from "@/api/apiMain";
 import { useCallback, useEffect, useState } from "react";
-import { useMetaMask } from "@/elements/metamask/useMetaMask";
+import { WalletState, useMetaMask } from "@/elements/metamask/useMetaMask";
 // import bg_2 from "images/bg_2.svg";
 
-const tableData2 = [
-  {
-    game: 1,
-    balance: 0.0456,
-    val: "ETH",
-    icon: coin2,
-    winner: "SHIBA",
-  },
-  {
-    game: 2,
-    balance: 0.0456,
-    val: "ETH",
-    icon: coin1,
-    winner: "PEPE",
-  },
-  {
-    game: 3,
-    balance: 0.0456,
-    val: "USD",
-    icon: coin2,
-    winner: "SHIBA",
-  },
-  {
-    game: 4,
-    balance: 0.0456,
-    val: "ETH",
-    icon: coin2,
-    winner: "SHIBA",
-  },
-  {
-    game: 5,
-    balance: 0.0456,
-    val: "ETH",
-    icon: coin2,
-    winner: "SHIBA",
-  },
-];
+// const tableData2 = [
+//   {
+//     game: 1,
+//     balance: 0.0456,
+//     val: "ETH",
+//     icon: coin2,
+//     winner: "SHIBA",
+//   },
+//   {
+//     game: 2,
+//     balance: 0.0456,
+//     val: "ETH",
+//     icon: coin1,
+//     winner: "PEPE",
+//   },
+//   {
+//     game: 3,
+//     balance: 0.0456,
+//     val: "USD",
+//     icon: coin2,
+//     winner: "SHIBA",
+//   },
+//   {
+//     game: 4,
+//     balance: 0.0456,
+//     val: "ETH",
+//     icon: coin2,
+//     winner: "SHIBA",
+//   },
+//   {
+//     game: 5,
+//     balance: 0.0456,
+//     val: "ETH",
+//     icon: coin2,
+//     winner: "SHIBA",
+//   },
+// ];
 
 interface IRes {
   id: number;
@@ -61,32 +61,61 @@ export default function StatsPage() {
   const [team2] = useState("SHIBA");
   const [val] = useState("ETH");
 
-  const { apiUser } = useMetaMask();
+  const { wallet, hasProvider, apiUser, updateApiUser } = useMetaMask();
   const [res, setRes] = useState<Array<IRes>>([]);
-  const [u, setU] = useState();
+  // const [u, setU] = useState();
 
-  const getHistory = useCallback(async () => {
-    const res = await getUserBets(apiUser?.userId);
+  const getHistory = useCallback(
+    async (id: number) => {
+      const res = await getUserBets(id);
 
-    //@ts-ignore
-    const data = await res.json();
+      //@ts-ignore
+      const data = await res.json();
 
-    setRes(data);
-  }, [apiUser]);
+      setRes(data);
+    },
+    [apiUser]
+  );
+
+  const loginF = useCallback(
+    async (wallet: WalletState) => {
+      const res = await login(wallet);
+      //@ts-ignore
+      const data = await res.json();
+      updateApiUser({
+        ...data,
+        userId: data.id,
+      });
+
+      if (data.id != null) {
+        getHistory(data.id);
+      }
+    },
+    [updateApiUser]
+  );
 
   useEffect(() => {
-    if (apiUser) {
-      getHistory();
+    const wAcc = wallet.accounts[0];
+    if (hasProvider && wAcc && wAcc !== apiUser?.address) {
+      loginF(wallet);
+    } else if (apiUser?.id) {
+      getHistory(apiUser?.id);
     }
-    setU(apiUser?.id);
-  }, []);
+  }, [wallet]);
 
-  useEffect(() => {
-    if (apiUser && apiUser?.id !== u?.id) {
-      getHistory();
-      setU(apiUser?.id);
-    }
-  }, [apiUser]);
+  // useEffect(() => {
+  //   if (apiUser) {
+  //     getHistory();
+  //     setU(apiUser?.id);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   if (apiUser && apiUser?.id !== u?.id) {
+  //     getHistory();
+  //     setU(apiUser?.id);
+  //   }
+  // }, [apiUser]);
 
   const getIcon = (isWin: boolean, color: 0 | 1) => {
     if (isWin) {
@@ -140,16 +169,18 @@ export default function StatsPage() {
                     <div>{v.id}</div>
                   </div>
                   <div className={styles.home_sec4_table_row_bal}>
-                    <div>Balance:</div>
-                    <div>{`${v.isWin === false ? "-" : ""}${v.sumOfBet} ${val}`}</div>
+                    <div>Balance({val}):</div>
+                    <div style={{ color: v.sumOfBet && v.isWin ? "green" : "red" }}>
+                      {`${v.isWin === false ? "-" : ""}${v.sumOfBet.toFixed(8)}`}
+                    </div>
                   </div>
                   <div className={styles.home_sec4_table_row_bal}>
                     <div>Hash:</div>
-                    <div style={{ maxWidth: 200, overflowX: "auto" }}>{v.md5}</div>
+                    <div style={{ width: "100%", maxWidth: 180, overflowX: "auto" }}>{v.md5}</div>
                   </div>
                   <div className={styles.home_sec4_table_row_bal}>
-                    <div style={{ maxWidth: 200, overflowX: "auto" }}>Hash:</div>
-                    <div>{v.secret}</div>
+                    <div>Secret:</div>
+                    <div style={{ width: "100%", maxWidth: 180, overflowX: "auto" }}>{v.secret}</div>
                   </div>
                   <div className={styles.home_sec4_table_row_win}>
                     <div>WINNER:</div>

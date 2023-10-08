@@ -17,7 +17,7 @@ export const login = (form: WalletState) => {
   });
 };
 
-export const getUserBets = (id: string) => {
+export const getUserBets = (id: number) => {
   return fetch(`${BACKEND_URL}/flipshistory?id=${id}`, {
     method: "GET",
     headers: {
