@@ -70,7 +70,7 @@ export default function HomePage() {
       const next = data.next;
       setTime(next.timestamp + 60 - Math.floor(Date.now() / 1000));
       setUsers([]);
-      setFullUsers([]);
+      setFullUsers([data]);
       getGameUsersF();
       setCurHash(next.md5);
       setBetPlaced(false);
@@ -139,22 +139,8 @@ export default function HomePage() {
     //@ts-ignore
     const data = await res.json();
     setFullUsers(data);
-
-    addUser(0);
   }, []);
 
-  const addUser = (time: number) => {
-    setTimeout(() => {
-      const uL = users.length;
-      const user = fullUsers[uL];
-      if (user && users.findIndex((v) => v.id === user.id) === -1) {
-        setUsers([...users, user]);
-        if (uL + 1 < fullUsers.length) {
-          addUser(time + Math.floor(Math.random() * (2000 - 200 + 1) + 200));
-        }
-      }
-    }, time);
-  };
   useEffect(() => {
     // clearTimeout(delayTimer);
     // delayTimer = setTimeout(function () {
@@ -172,6 +158,11 @@ export default function HomePage() {
       if (time > 0) {
         setTimeout(() => {
           setTime(time - 1);
+
+          const user = fullUsers[Math.max(30 - time / 2, 0)];
+          if (users.findIndex((v) => v.id === user.id) === -1) {
+            setUsers([...users, user]);
+          }
         }, 1000);
       } else {
         finishGameF();
