@@ -33,7 +33,8 @@ export default function HomePage() {
   const [curHash, setCurHash] = useState<string | null>(null);
 
   const [prevGame, setPrevGame] = useState<IPrevGame | null>(null);
-  const [resAnim, serResAnim] = useState<boolean>();
+  const [resAnim, serResAnim] = useState<boolean>(false);
+  const [showRes, setShowRes] = useState<boolean>(false);
 
   const updateValue = (val: number) => {
     const maxV = Math.min(+val.toFixed(8), apiUser?.balance);
@@ -44,6 +45,7 @@ export default function HomePage() {
 
   const showResultAnim = (data) => {
     serResAnim(true);
+    setShowRes(false);
 
     setTimeout(() => {
       const prev = data.previos;
@@ -57,6 +59,8 @@ export default function HomePage() {
       if (data.isWin) {
         updateBalance(data.sumOfBet);
       }
+
+      setShowRes(true);
     }, 7200);
 
     setTimeout(() => {
@@ -68,6 +72,7 @@ export default function HomePage() {
       setSelTeam(null);
       setEthValue(0);
       serResAnim(false);
+      setShowRes(false);
     }, 10000);
   };
 
@@ -203,8 +208,12 @@ export default function HomePage() {
           <div className={styles.home_sec1_block2_mid}>
             {resAnim ? (
               <>
-                <p>{prevGame?.isWin ? "YOU WON" : "YOU LOST"}</p>
-                <img src={prevGame?.teamWin === team1 ? coin1G : coin2G} alt="coin win" />
+                <p>{showRes ? `TEAM ${prevGame?.teamWin} WON!` : "Flipping..."}</p>
+                <img
+                  className={styles.home_sec1_block2_mid_imgres}
+                  src={prevGame?.teamWin === team1 ? coin1G : coin2G}
+                  alt="coin win"
+                />
               </>
             ) : (
               <>

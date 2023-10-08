@@ -257,6 +257,12 @@
           }
         }
 
+        &_imgres {
+          width: 130px;
+          display: flex;
+          margin: auto;
+        }
+
         &_bot {
           display: flex;
           flex-direction: row;
