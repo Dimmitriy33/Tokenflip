@@ -86,7 +86,7 @@ export default function StatsPage() {
       getHistory();
       setU(apiUser?.id);
     }
-  }, []);
+  }, [apiUser]);
 
   const getIcon = (isWin: boolean, color: 0 | 1) => {
     if (isWin) {
