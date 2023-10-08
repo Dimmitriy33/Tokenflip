@@ -56,7 +56,7 @@ export default function HomePage() {
       setPrevGame({
         ...prev,
         sumOfBet: data.sumOfBet,
-        teamWin: data.color === 0 ? team1 : team2,
+        teamWin: data?.color === 0 ? team1 : team2,
         isWin: data.isWin,
       });
       if (data.isWin) {
@@ -160,7 +160,7 @@ export default function HomePage() {
           setTime(time - 1);
 
           const user = fullUsers[Math.max(30 - time / 2, 0)];
-          if (users.findIndex((v) => v.id === user.id) === -1) {
+          if (users.findIndex((v) => v.id === user.id) === -1 && user) {
             setUsers([...users, user]);
           }
         }, 1000);
@@ -219,7 +219,7 @@ export default function HomePage() {
             </div>
             <p>
               {users
-                .filter((v) => v.color === 0)
+                .filter((v) => v?.color === 0)
                 .map((v) => v.sumOfBet)
                 .reduce((partialSum, a) => partialSum + a, 0)}
             </p>
@@ -333,7 +333,7 @@ export default function HomePage() {
             </div>
             <p>
               {users
-                .filter((v) => v.color === 1)
+                .filter((v) => v?.color === 1)
                 .map((v) => v.sumOfBet)
                 .reduce((partialSum, a) => partialSum + a, 0)}
             </p>
@@ -404,14 +404,14 @@ export default function HomePage() {
           <div className={styles.home_sec2_el_top}>
             <div>
               <img src={pers} alt="perc" />
-              <div>{users.filter((v) => v.color === 0).length}</div>
+              <div>{users.filter((v) => v?.color === 0).length || 0}</div>
             </div>
             <p>Team {team1}</p>
           </div>
 
           <div className={styles.home_sec2_list}>
             {users
-              .filter((v) => v.color === 0)
+              .filter((v) => v?.color === 0)
               .map((v, i) => (
                 <div
                   key={v.id}
@@ -452,14 +452,14 @@ export default function HomePage() {
           <div className={styles.home_sec2_el_top}>
             <div>
               <img src={pers} alt="perc" />
-              <div>{users.filter((v) => v.color === 1).length}</div>
+              <div>{users.filter((v) => v?.color === 1).length || 0}</div>
             </div>
             <p>Team {team2}</p>
           </div>
 
           <div className={cx([styles.home_sec2_list, styles.home_sec2_listv2])}>
             {users
-              .filter((v) => v.color === 1)
+              .filter((v) => v?.color === 1)
               .map((v, i) => (
                 <div
                   key={v.id}
