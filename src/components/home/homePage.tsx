@@ -24,23 +24,24 @@ export default function HomePage() {
   const { wallet, hasProvider, apiUser, updateBalance, updateApiUser } = useMetaMask();
   const [team1] = useState("PEPE");
   const [team2] = useState("SHIBA");
-  const [val] = useState("ETH");
+  const [val] = useState("TF");
+
+  const [time, setTime] = useState<number | null>(null);
+  const [finishTime, setFinishTime] = useState<number | null>(null);
+  const [tick, setTick] = useState(false);
 
   const [ethValue, setEthValue] = useState(0);
   const [betPlaced, setBetPlaced] = useState<boolean>(false);
   const [selTeam, setSelTeam] = useState<string | null>(null);
-  const [time, setTime] = useState<number | null>(null);
   const [curHash, setCurHash] = useState<string | null>(null);
   const [users, setUsers] = useState<Array<any>>([]);
-
-  const [fullUsers, setFullUsers] = useState<Array<any>>([]);
 
   const [prevGame, setPrevGame] = useState<IPrevGame | null>(null);
   const [resAnim, serResAnim] = useState<boolean>(false);
   const [showRes, setShowRes] = useState<boolean>(false);
 
   const updateValue = (val: number) => {
-    const maxV = apiUser?.balance ? Math.min(+val.toFixed(8), apiUser.balance) : 0;
+    const maxV = apiUser?.balance ? Math.min(+val.toFixed(2), apiUser.balance) : 0;
     const v = Math.max(maxV, 0);
 
     setEthValue(v);
@@ -60,36 +61,39 @@ export default function HomePage() {
         isWin: data.isWin,
       });
       if (data.isWin) {
-        updateBalance(data.sumOfBet);
+        updateBalance(data.sumOfBet * 2);
       }
 
       setShowRes(true);
-    }, 7200);
+    }, 5600);
 
     setTimeout(() => {
       const next = data.next;
-      setTime(next.timestamp + 60 - Math.floor(Date.now() / 1000));
-      setUsers([]);
-      setFullUsers([data]);
-      getGameUsersF();
+      const t = Math.round((next.timestamp + 60) * 1000);
+      setFinishTime(t);
+      setTime(Math.round(((data.timestamp + 60) * 1000 - new Date().getTime()) / 1000));
+      setUsers(getMockedUsers(Math.round(((data.timestamp + 60) * 1000 - new Date().getTime()) / 1000), t));
       setCurHash(next.md5);
       setBetPlaced(false);
       setSelTeam(null);
       setEthValue(0);
       serResAnim(false);
       setShowRes(false);
-    }, 10000);
+    }, 8000);
   };
 
   const getGameF = useCallback(async () => {
     const res = await getGame();
     //@ts-ignore
-
     const data = await res.json();
-    setTime(data.timestamp + 60 - Math.floor(Date.now() / 1000));
-    if (users.length === 0) {
-      getGameUsersF();
+    const t = (data.timestamp + 60) * 1000;
+    if (users.length < 1) {
+      const users = getMockedUsers(Math.round(((data.timestamp + 60) * 1000 - new Date().getTime()) / 1000), t);
+      setUsers(users);
     }
+
+    setTick(!tick);
+    setFinishTime(Math.round(t));
     setBetPlaced(apiUser?.canBet || false);
     setCurHash(data.md5);
   }, []);
@@ -134,49 +138,46 @@ export default function HomePage() {
     [updateApiUser]
   );
 
-  const getGameUsersF = useCallback(async () => {
-    const res = await getGameUsers();
-    //@ts-ignore
-    const data = await res.json();
-    setFullUsers(data);
-  }, []);
+  const getPerc = (team: number) => {
+    const u1 = users.filter((v) => v?.color === 0).length;
+    const u2 = users.filter((v) => v?.color === 1).length;
+    if (team === 0) {
+      return Math.round(100 * (u1 / (u1 + u2)));
+    }
+
+    return Math.round(100 * (u2 / (u1 + u2)));
+  };
 
   useEffect(() => {
-    // clearTimeout(delayTimer);
-    // delayTimer = setTimeout(function () {
     const wAcc = wallet.accounts[0];
     if (hasProvider && wAcc && wAcc !== apiUser?.address) {
       loginF(wallet).then(() => {
         getGameF();
       });
     }
-    // }, 10); // Will do the ajax stuff after 1000 ms, or 1 s
   }, [wallet]);
 
   useEffect(() => {
-    if (time != null) {
-      if (time > 0) {
-        setTimeout(() => {
-          setTime(time - 1);
-
-          const user = fullUsers[Math.max(30 - time / 2, 0)];
-          if (user && users.findIndex((v) => v.id === user.id) === -1) {
-            setUsers([...users, user]);
-          }
-        }, 1000);
-      } else {
+    if (finishTime) {
+      const diff = Math.round((finishTime - new Date().getTime()) / 1000);
+      if (diff <= 0) {
+        setFinishTime(null);
         finishGameF();
-        // if (hasProvider && wallet.accounts.length > 0) {
-        //   finishGameF();
-        // } else {
-        //   getGameF();
-        // }
       }
+
+      const users = getMockedUsers(diff, finishTime);
+      setUsers(users);
+      setTime(diff);
     }
-  }, [time]);
+  }, [tick, finishTime]);
 
   useEffect(() => {
-    if (time === null) {
+    const timerID = setInterval(() => setTick(!tick), 1000);
+    return () => clearInterval(timerID);
+  }, [tick]);
+
+  useEffect(() => {
+    if (finishTime === null) {
       getGameF();
     }
   }, []);
@@ -190,7 +191,8 @@ export default function HomePage() {
           <div className={styles.home_sec1_block1_top}>
             <div>
               <div>{selTeam === team1 ? "Player" : "Leo K"}</div>
-              <div>{selTeam === team1 ? "YOU" : "Enemy"}</div>
+              <div></div>
+              {/* <div>{selTeam === team1 ? "YOU" : "Enemy"}</div> */}
             </div>
             <div>
               <AvatarImage creds="LE" img={chel} />
@@ -209,7 +211,7 @@ export default function HomePage() {
             </div>
             <div className={styles.home_sec1_block1_mid_pep2}>
               <img src={arrow} alt="arrow" />
-              <p>51%</p>
+              <p>{getPerc(0)}%</p>
             </div>
           </div>
           <div className={styles.home_sec1_block1_bot}>
@@ -222,7 +224,7 @@ export default function HomePage() {
                 .filter((v) => v?.color === 0)
                 .map((v) => v.sumOfBet)
                 .reduce((partialSum, a) => partialSum + a, 0)
-                .toFixed(8)}
+                .toFixed(2)}
             </p>
           </div>
         </div>
@@ -254,7 +256,7 @@ export default function HomePage() {
                   className="horizontal-slider"
                   thumbClassName="example-thumb"
                   trackClassName="example-track"
-                  value={time !== null ? time : 60}
+                  value={time != null ? (isNaN(time) ? 60 : time) : 60}
                   max={60}
                   renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
                 />
@@ -275,12 +277,12 @@ export default function HomePage() {
           <div className={styles.home_sec1_block2_bot}>
             <p>Bet Amount</p>
             <div className={styles.home_sec1_block2_bot_main}>
-              <button onClick={() => updateValue(ethValue - 0.000001)}>-</button>
+              <button onClick={() => updateValue(ethValue - 1)}>-</button>
               <div>
                 <input value={ethValue} min={0} onInput={(e) => updateValue(+e.currentTarget.value)} type="number" />
                 <div>{val}</div>
               </div>
-              <button onClick={() => updateValue(ethValue + 0.000001)}>+</button>
+              <button onClick={() => updateValue(ethValue + 1)}>+</button>
             </div>
             <button
               disabled={
@@ -302,7 +304,8 @@ export default function HomePage() {
           <div className={[styles.home_sec1_block1_top, styles.home_sec1_block1_top_reverse].join(" ")}>
             <div>
               <div>{selTeam === team2 ? "Player" : "Leo K"}</div>
-              <div>{selTeam === team2 ? "YOU" : "Enemy"}</div>
+              <div></div>
+              {/* <div>{selTeam === team2 ? "YOU" : "Enemy"}</div> */}
             </div>
             <div>
               <AvatarImage creds="LE" img={chel} />
@@ -317,14 +320,11 @@ export default function HomePage() {
               onClick={() => setSelTeam(team2)}
             >
               <img src={coin2} alt="coin2" />
-              {/* <video autoPlay loop>
-                <source src={coin2V} />
-              </video> */}
               <p>Team {team2}</p>
             </div>
             <div className={styles.home_sec1_block1_mid_pep2}>
               <img src={arrow} alt="arrow" />
-              <p>49%</p>
+              <p>{getPerc(1)}%</p>
             </div>
           </div>
           <div className={[styles.home_sec1_block1_bot, styles.home_sec1_block1_bot_end].join(" ")}>
@@ -337,7 +337,7 @@ export default function HomePage() {
                 .filter((v) => v?.color === 1)
                 .map((v) => v.sumOfBet)
                 .reduce((partialSum, a) => partialSum + a, 0)
-                .toFixed(8)}
+                .toFixed(2)}
             </p>
           </div>
         </div>
@@ -423,7 +423,7 @@ export default function HomePage() {
                     <AvatarImage creds="LE" img={chel} />
                     <p>{(v.address as string).substring(0, 8)}</p>
                   </div>
-                  <div className={styles.home_sec2_list_item_mid}>{(v.sumOfBet as number).toFixed(8)}</div>
+                  <div className={styles.home_sec2_list_item_mid}>{(v.sumOfBet as number).toFixed(2)}</div>
                   <button>
                     <img src={persPlus} alt="persPlus" />
                     Join
@@ -475,7 +475,7 @@ export default function HomePage() {
                     <AvatarImage creds="LE" img={chel} />
                     <p>{(v.address as string).substring(0, 8)}</p>
                   </div>
-                  <div className={styles.home_sec2_list_item_mid}>{(v.sumOfBet as number).toFixed(8)}</div>
+                  <div className={styles.home_sec2_list_item_mid}>{(v.sumOfBet as number).toFixed(2)}</div>
                   <button>
                     <img src={persPlus} alt="persPlus" />
                     Join
@@ -516,4 +516,27 @@ interface IPrevGame {
   teamWin: string;
   isWin: boolean;
   sumOfBet: number;
+}
+
+function getMockedUsers(curTime: number, finishTS: number) {
+  const users = [];
+  for (let i = curTime; i < 60; i++) {
+    for (let idx = 0; idx < (i * 2) % 12; idx++) {
+      const u = getMockUser(+`${i}${idx}`, i, finishTS);
+      if (users.findIndex((v) => v.sumOfBet === u.sumOfBet) === -1) {
+        users.push(u);
+      }
+    }
+  }
+
+  return users;
+}
+
+function getMockUser(id: number, i: number, finishTS: number) {
+  return {
+    id,
+    color: i < 14 ? Number(i % 2 === 0) : Number(i % 3 !== 2),
+    address: "0x*****",
+    sumOfBet: (finishTS % (167 * i)) + ((i * 2543) % 10000) + i * 11,
+  };
 }

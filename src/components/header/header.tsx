@@ -1,13 +1,13 @@
+/* eslint-disable react/button-has-type */
 /* eslint-disable css-modules/no-unused-class */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import logo from "images/logoMain.svg";
-import styles from "./header.module.scss";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMetaMask } from "@/elements/metamask/useMetaMask";
-import { formatAddress } from "@/elements/metamask/utils";
 import { useState } from "react";
+import styles from "./header.module.scss";
 
 const pathes: IMenuItem[] = [
   {
@@ -34,7 +34,7 @@ const pathes: IMenuItem[] = [
 
 export default function Header() {
   const { wallet, hasProvider, isConnecting, apiUser, connectMetaMask } = useMetaMask();
-  const [val] = useState("ETH");
+  const [val] = useState("TF");
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -54,7 +54,7 @@ export default function Header() {
             <div
               key={v.title}
               onClick={() => {
-                navigate("/" + v.path);
+                navigate(`/${v.path}`);
 
                 // const id = v.path;
                 // const yOffset = -140;
@@ -83,7 +83,7 @@ export default function Header() {
         {hasProvider && wallet.accounts.length > 0 && (
           <>
             <p>
-              {apiUser?.balance || "0.0000000000"} {val}
+              {apiUser?.balance.toFixed(2) || 0} {val}
             </p>
             <a
               className="text_link tooltip-bottom"

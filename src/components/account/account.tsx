@@ -56,7 +56,7 @@ export default function AccountPage() {
   const [loseCount, setLoseCount] = useState(0);
   const [team1] = useState("PEPE");
   const [team2] = useState("SHIBA");
-  const [val] = useState("ETH");
+  const [val] = useState("TF");
 
   const { wallet, hasProvider, apiUser, updateApiUser } = useMetaMask();
   const [res, setRes] = useState<Array<IRes>>([]);
@@ -155,7 +155,7 @@ export default function AccountPage() {
       <div className={styles.home_sec5}>
         <h2>
           <img src={cash} alt="arr" />
-          {apiUser?.balance} {val}
+          {(+apiUser?.balance).toFixed(2)} {val}
         </h2>
         <div className={styles.home_sec5_p}>
           <div className={styles.home_sec5_p_1}>
@@ -206,9 +206,9 @@ export default function AccountPage() {
                       <div>{v.id}</div>
                     </div>
                     <div className={styles.home_sec5_main_table_row_bal}>
-                      <div>Balance({val}):</div>
+                      <div>Balance({(+val).toFixed(2)}):</div>
                       <div style={{ color: v.sumOfBet && v.isWin ? "green" : "red" }}>
-                        {`${v.isWin === false ? "-" : ""}${v.sumOfBet.toFixed(8)}`}
+                        {`${v.isWin === false ? "-" : ""}${v.sumOfBet.toFixed(2)}`}
                       </div>
                     </div>
                     <div className={styles.home_sec5_main_table_row_bal}>

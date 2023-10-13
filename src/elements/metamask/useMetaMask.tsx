@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable react/jsx-no-constructed-context-values */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, createContext, PropsWithChildren, useContext, useCallback } from "react";
 
 import detectEthereumProvider from "@metamask/detect-provider";
-import { BACKEND_URL, formatBalance } from "./utils";
+import { formatBalance } from "./utils";
 
 export interface WalletState {
   accounts: any[];
@@ -27,7 +29,7 @@ const disconnectedState: WalletState = { accounts: [], balance: "", chainId: "" 
 
 const MetaMaskContext = createContext<MetaMaskContextData>({} as MetaMaskContextData);
 
-export const MetaMaskContextProvider = ({ children }: PropsWithChildren) => {
+export function MetaMaskContextProvider({ children }: PropsWithChildren) {
   const [hasProvider, setHasProvider] = useState<boolean | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
@@ -132,7 +134,7 @@ export const MetaMaskContextProvider = ({ children }: PropsWithChildren) => {
       {children}
     </MetaMaskContext.Provider>
   );
-};
+}
 
 export const useMetaMask = () => {
   const context = useContext(MetaMaskContext);

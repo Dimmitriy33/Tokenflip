@@ -59,7 +59,7 @@ export interface IRes {
 export default function StatsPage() {
   const [team1] = useState("PEPE");
   const [team2] = useState("SHIBA");
-  const [val] = useState("ETH");
+  const [val] = useState("TF");
 
   const { wallet, hasProvider, apiUser, updateApiUser } = useMetaMask();
   const [res, setRes] = useState<Array<IRes>>([]);
@@ -171,7 +171,7 @@ export default function StatsPage() {
                   <div className={styles.home_sec4_table_row_bal}>
                     <div>Balance({val}):</div>
                     <div style={{ color: v.sumOfBet && v.isWin ? "green" : "red" }}>
-                      {`${v.isWin === false ? "-" : ""}${v.sumOfBet.toFixed(8)}`}
+                      {`${v.isWin === false ? "-" : ""}${v.sumOfBet.toFixed(2)}`}
                     </div>
                   </div>
                   <div className={styles.home_sec4_table_row_bal}>
