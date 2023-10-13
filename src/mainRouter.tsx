@@ -6,8 +6,33 @@ import StatsPage from "./components/stats/stats";
 import DepositPage from "./components/deposit/deposit";
 import AccountPage from "./components/account/account";
 import Header from "./components/header/header";
+import { WalletState, useMetaMask } from "./elements/metamask/useMetaMask";
+import { useCallback, useEffect } from "react";
+import { login } from "./api/apiMain";
 
 export default function MainRouter() {
+  const { wallet, hasProvider, apiUser, updateApiUser } = useMetaMask();
+
+  const loginF = useCallback(
+    async (wallet: WalletState) => {
+      const res = await login(wallet);
+      //@ts-ignore
+      const data = await res.json();
+      updateApiUser({
+        ...data,
+        userId: data.id,
+      });
+    },
+    [updateApiUser]
+  );
+
+  useEffect(() => {
+    const wAcc = wallet.accounts[0];
+    if (hasProvider && wAcc && wAcc !== apiUser?.address) {
+      loginF(wallet);
+    }
+  }, [wallet]);
+
   return (
     <BrowserRouter>
       <Header />

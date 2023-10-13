@@ -9,47 +9,47 @@ import coin1 from "images/coin1.svg";
 import coin2 from "images/coin2.svg";
 import cup from "images/cup.svg";
 import AvatarImage from "@/elements/avatarImage/avi";
-import { WalletState, useMetaMask } from "@/elements/metamask/useMetaMask";
-import { getUserBets, login } from "@/api/apiMain";
+import { useMetaMask } from "@/elements/metamask/useMetaMask";
+import { getUserBets } from "@/api/apiMain";
 import { IRes } from "../stats/stats";
 
-const tableData2 = [
-  {
-    game: 1,
-    balance: 0.0456,
-    val: "ETH",
-    icon: coin2,
-    winner: "SHIBA",
-  },
-  {
-    game: 2,
-    balance: 0.0456,
-    val: "ETH",
-    icon: coin1,
-    winner: "PEPE",
-  },
-  {
-    game: 3,
-    balance: 0.0456,
-    val: "USD",
-    icon: coin2,
-    winner: "SHIBA",
-  },
-  {
-    game: 4,
-    balance: 0.0456,
-    val: "ETH",
-    icon: coin2,
-    winner: "SHIBA",
-  },
-  {
-    game: 5,
-    balance: 0.0456,
-    val: "ETH",
-    icon: coin2,
-    winner: "SHIBA",
-  },
-];
+// const tableData2 = [
+//   {
+//     game: 1,
+//     balance: 0.0456,
+//     val: "ETH",
+//     icon: coin2,
+//     winner: "SHIBA",
+//   },
+//   {
+//     game: 2,
+//     balance: 0.0456,
+//     val: "ETH",
+//     icon: coin1,
+//     winner: "PEPE",
+//   },
+//   {
+//     game: 3,
+//     balance: 0.0456,
+//     val: "USD",
+//     icon: coin2,
+//     winner: "SHIBA",
+//   },
+//   {
+//     game: 4,
+//     balance: 0.0456,
+//     val: "ETH",
+//     icon: coin2,
+//     winner: "SHIBA",
+//   },
+//   {
+//     game: 5,
+//     balance: 0.0456,
+//     val: "ETH",
+//     icon: coin2,
+//     winner: "SHIBA",
+//   },
+// ];
 
 export default function AccountPage() {
   const [winCount, setWinCount] = useState(0);
@@ -58,7 +58,7 @@ export default function AccountPage() {
   const [team2] = useState("SHIBA");
   const [val] = useState("TF");
 
-  const { wallet, hasProvider, apiUser, updateApiUser } = useMetaMask();
+  const { apiUser } = useMetaMask();
   const [res, setRes] = useState<Array<IRes>>([]);
   // const [u, setU] = useState();
 
@@ -75,46 +75,6 @@ export default function AccountPage() {
     },
     [apiUser]
   );
-
-  const loginF = useCallback(
-    async (wallet: WalletState) => {
-      const res = await login(wallet);
-      //@ts-ignore
-      const data = await res.json();
-      updateApiUser({
-        ...data,
-        userId: data.id,
-      });
-
-      if (data.id != null) {
-        getHistory(data.id);
-      }
-    },
-    [updateApiUser]
-  );
-
-  useEffect(() => {
-    const wAcc = wallet.accounts[0];
-    if (hasProvider && wAcc && wAcc !== apiUser?.address) {
-      loginF(wallet);
-    } else if (apiUser?.id) {
-      getHistory(apiUser?.id);
-    }
-  }, [wallet]);
-
-  // useEffect(() => {
-  //   if (apiUser) {
-  //     getHistory();
-  //     setU(apiUser?.id);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   if (apiUser && apiUser?.id !== u?.id) {
-  //     getHistory();
-  //     setU(apiUser?.id);
-  //   }
-  // }, [apiUser]);
 
   const getIcon = (isWin: boolean, color: 0 | 1) => {
     if (isWin) {
@@ -148,89 +108,96 @@ export default function AccountPage() {
     }
   };
 
+  useEffect(() => {
+    if (apiUser) {
+      getHistory(apiUser?.id);
+    }
+  }, [apiUser]);
+
   return (
     <div className={styles.home}>
       <img src={bg_2} alt="bg" className={styles.home_sec5_bg} />
 
-      <div className={styles.home_sec5}>
-        <h2>
-          <img src={cash} alt="arr" />
-          {(+apiUser?.balance).toFixed(2)} {val}
-        </h2>
-        <div className={styles.home_sec5_p}>
-          <div className={styles.home_sec5_p_1}>
-            <img src={arrowUp} alt="arr" />
-            Withdraw
-          </div>
-          <div className={styles.home_sec5_p_2}>
-            <img src={arrowUp} alt="arr" />
-            Deposit
-          </div>
-        </div>
-
-        <div className={styles.home_sec5_main}>
-          <div className={styles.home_sec5_main_info}>
-            <div className={styles.home_sec5_main_info_left}>
-              <div>
-                <AvatarImage creds="LE" img={chel} />
-              </div>
-              <div>
-                <div>Leo K</div>
-                <div>Enemy</div>
-              </div>
+      {apiUser ? (
+        <div className={styles.home_sec5}>
+          <h2>
+            <img src={cash} alt="arr" />
+            {apiUser ? (+apiUser?.balance).toFixed(2) : "0"} {val}
+          </h2>
+          <div className={styles.home_sec5_p}>
+            <div className={styles.home_sec5_p_1}>
+              <img src={arrowUp} alt="arr" />
+              Withdraw
             </div>
-            <div className={styles.home_sec5_main_info_right}>
-              <img src={cup} alt="asd" />
-              <p>79</p>
-            </div>
-          </div>
-
-          <div className={styles.home_sec5_main_wl}>
-            <div className={styles.home_sec5_main_wl_left}>
-              <div>WIN:</div>
-              <div>{winCount}</div>
-            </div>
-            <div className={styles.home_sec5_main_wl_right}>
-              <div>LOSE:</div>
-              <div>{loseCount}</div>
+            <div className={styles.home_sec5_p_2}>
+              <img src={arrowUp} alt="arr" />
+              Deposit
             </div>
           </div>
 
           <div className={styles.home_sec5_main}>
-            <div className={styles.home_sec5_main_table}>
-              {res &&
-                res.map((v, i) => (
-                  <div key={i} className={styles.home_sec5_main_table_row}>
-                    <div className={styles.home_sec5_main_table_row_game}>
-                      <div>Game:</div>
-                      <div>{v.id}</div>
-                    </div>
-                    <div className={styles.home_sec5_main_table_row_bal}>
-                      <div>Balance({(+val).toFixed(2)}):</div>
-                      <div style={{ color: v.sumOfBet && v.isWin ? "green" : "red" }}>
-                        {`${v.isWin === false ? "-" : ""}${v.sumOfBet.toFixed(2)}`}
+            <div className={styles.home_sec5_main_info}>
+              <div className={styles.home_sec5_main_info_left}>
+                <div>
+                  <AvatarImage creds="LE" img={chel} />
+                </div>
+                <div>
+                  <div>YOU</div>
+                  <div></div>
+                </div>
+              </div>
+              <div className={styles.home_sec5_main_info_right}>
+                <img src={cup} alt="asd" />
+                <p>79</p>
+              </div>
+            </div>
+
+            <div className={styles.home_sec5_main_wl}>
+              <div className={styles.home_sec5_main_wl_left}>
+                <div>WIN:</div>
+                <div>{winCount}</div>
+              </div>
+              <div className={styles.home_sec5_main_wl_right}>
+                <div>LOSE:</div>
+                <div>{loseCount}</div>
+              </div>
+            </div>
+
+            <div className={styles.home_sec5_main}>
+              <div className={styles.home_sec5_main_table}>
+                {res &&
+                  res.map((v, i) => (
+                    <div key={i} className={styles.home_sec5_main_table_row}>
+                      <div className={styles.home_sec5_main_table_row_game}>
+                        <div>Game:</div>
+                        <div>{v.id}</div>
+                      </div>
+                      <div className={styles.home_sec5_main_table_row_bal}>
+                        <div>Balance({(+val).toFixed(2)}):</div>
+                        <div style={{ color: v.sumOfBet && v.isWin ? "green" : "red" }}>
+                          {`${v.isWin === false ? "-" : ""}${v.sumOfBet.toFixed(2)}`}
+                        </div>
+                      </div>
+                      <div className={styles.home_sec5_main_table_row_bal}>
+                        <div>Hash:</div>
+                        <div style={{ width: "100%", maxWidth: 180, overflowX: "auto" }}>{v.md5}</div>
+                      </div>
+                      <div className={styles.home_sec5_main_table_row_bal}>
+                        <div>Secret:</div>
+                        <div style={{ width: "100%", maxWidth: 180, overflowX: "auto" }}>{v.secret}</div>
+                      </div>
+                      <div className={styles.home_sec5_main_table_row_win}>
+                        <div>WINNER:</div>
+                        <img src={getIcon(v.isWin, v.color)} alt="icon" />
+                        <div>Team {getTeam(v.isWin, v.color)}</div>
                       </div>
                     </div>
-                    <div className={styles.home_sec5_main_table_row_bal}>
-                      <div>Hash:</div>
-                      <div style={{ width: "100%", maxWidth: 180, overflowX: "auto" }}>{v.md5}</div>
-                    </div>
-                    <div className={styles.home_sec5_main_table_row_bal}>
-                      <div>Secret:</div>
-                      <div style={{ width: "100%", maxWidth: 180, overflowX: "auto" }}>{v.secret}</div>
-                    </div>
-                    <div className={styles.home_sec5_main_table_row_win}>
-                      <div>WINNER:</div>
-                      <img src={getIcon(v.isWin, v.color)} alt="icon" />
-                      <div>Team {getTeam(v.isWin, v.color)}</div>
-                    </div>
-                  </div>
-                ))}
-              {(!res || res.length === 0) && <div className={styles.home_sec5_main_table_zero}>No Results</div>}
+                  ))}
+                {(!res || res.length === 0) && <div className={styles.home_sec5_main_table_zero}>No Results</div>}
+              </div>
             </div>
-          </div>
 
-          {/* <div className={styles.home_sec5_main_table}>
+            {/* <div className={styles.home_sec5_main_table}>
             {tableData2.map((v, i) => (
               <div key={i} className={styles.home_sec5_main_table_row}>
                 <div className={styles.home_sec5_main_table_row_game}>
@@ -252,8 +219,11 @@ export default function AccountPage() {
             ))}
             {tableData2.length === 0 && <div className={styles.home_sec5_main_table_zero}>No Results</div>}
           </div> */}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className={styles.home_empty}>Please connect metamask to see this page</div>
+      )}
     </div>
   );
 }

@@ -16,15 +16,16 @@ import styles from "./homePage.module.scss";
 import ReactSlider from "react-slider";
 import { useCallback, useEffect, useState } from "react";
 import cx from "classnames";
-import { finishGame, getGame, getGameUsers, login, placeBet } from "@/api/apiMain";
-import { WalletState, useMetaMask } from "@/elements/metamask/useMetaMask";
+import { finishGame, getGame, placeBet } from "@/api/apiMain";
+import { useMetaMask } from "@/elements/metamask/useMetaMask";
+import CurrencyInput from "react-currency-input-field";
 
 // let delayTimer;
 export default function HomePage() {
-  const { wallet, hasProvider, apiUser, updateBalance, updateApiUser } = useMetaMask();
+  const { wallet, hasProvider, apiUser, updateBalance } = useMetaMask();
   const [team1] = useState("PEPE");
   const [team2] = useState("SHIBA");
-  const [val] = useState("TF");
+  const [val] = useState(" TF");
 
   const [time, setTime] = useState<number | null>(null);
   const [finishTime, setFinishTime] = useState<number | null>(null);
@@ -36,6 +37,7 @@ export default function HomePage() {
   const [curHash, setCurHash] = useState<string | null>(null);
   const [users, setUsers] = useState<Array<any>>([]);
 
+  const [uAddress, setUAddress] = useState<IPrevGame | null>(null);
   const [prevGame, setPrevGame] = useState<IPrevGame | null>(null);
   const [resAnim, serResAnim] = useState<boolean>(false);
   const [showRes, setShowRes] = useState<boolean>(false);
@@ -125,19 +127,6 @@ export default function HomePage() {
     }
   }, [apiUser, curHash, ethValue, wallet, selTeam]);
 
-  const loginF = useCallback(
-    async (wallet: WalletState) => {
-      const res = await login(wallet);
-      //@ts-ignore
-      const data = await res.json();
-      updateApiUser({
-        ...data,
-        userId: data.id,
-      });
-    },
-    [updateApiUser]
-  );
-
   const getPerc = (team: number) => {
     const u1 = users.filter((v) => v?.color === 0).length;
     const u2 = users.filter((v) => v?.color === 1).length;
@@ -147,15 +136,6 @@ export default function HomePage() {
 
     return Math.round(100 * (u2 / (u1 + u2)));
   };
-
-  useEffect(() => {
-    const wAcc = wallet.accounts[0];
-    if (hasProvider && wAcc && wAcc !== apiUser?.address) {
-      loginF(wallet).then(() => {
-        getGameF();
-      });
-    }
-  }, [wallet]);
 
   useEffect(() => {
     if (finishTime) {
@@ -177,6 +157,13 @@ export default function HomePage() {
   }, [tick]);
 
   useEffect(() => {
+    if (apiUser && apiUser.address !== uAddress) {
+      getGameF();
+      setUAddress(apiUser.address);
+    }
+  }, [apiUser]);
+
+  useEffect(() => {
     if (finishTime === null) {
       getGameF();
     }
@@ -188,16 +175,16 @@ export default function HomePage() {
 
       <div className={styles.home_sec1} id="Home">
         <div className={styles.home_sec1_block1}>
-          <div className={styles.home_sec1_block1_top}>
+          {/* <div className={styles.home_sec1_block1_top}>
             <div>
               <div>{selTeam === team1 ? "Player" : "Leo K"}</div>
               <div></div>
-              {/* <div>{selTeam === team1 ? "YOU" : "Enemy"}</div> */}
+              <div>{selTeam === team1 ? "YOU" : "Enemy"}</div>
             </div>
             <div>
               <AvatarImage creds="LE" img={chel} />
             </div>
-          </div>
+          </div> */}
           <div className={styles.home_sec1_block1_mid}>
             <div
               className={[
@@ -279,8 +266,20 @@ export default function HomePage() {
             <div className={styles.home_sec1_block2_bot_main}>
               <button onClick={() => updateValue(ethValue - 1)}>-</button>
               <div>
-                <input value={ethValue} min={0} onInput={(e) => updateValue(+e.currentTarget.value)} type="number" />
-                <div>{val}</div>
+                <CurrencyInput
+                  id="input-example-h"
+                  name="input-name-h"
+                  placeholder="Please enter a sum"
+                  defaultValue={ethValue}
+                  decimalsLimit={2}
+                  suffix={" " + val}
+                  max={100000}
+                  min={0}
+                  value={ethValue}
+                  onValueChange={(value, _name) => {
+                    updateValue(value ? Number(value) : 0);
+                  }}
+                />
               </div>
               <button onClick={() => updateValue(ethValue + 1)}>+</button>
             </div>
@@ -301,16 +300,16 @@ export default function HomePage() {
         </div>
 
         <div className={styles.home_sec1_block1}>
-          <div className={[styles.home_sec1_block1_top, styles.home_sec1_block1_top_reverse].join(" ")}>
+          {/* <div className={[styles.home_sec1_block1_top, styles.home_sec1_block1_top_reverse].join(" ")}>
             <div>
               <div>{selTeam === team2 ? "Player" : "Leo K"}</div>
               <div></div>
-              {/* <div>{selTeam === team2 ? "YOU" : "Enemy"}</div> */}
+              <div>{selTeam === team2 ? "YOU" : "Enemy"}</div>
             </div>
             <div>
               <AvatarImage creds="LE" img={chel} />
             </div>
-          </div>
+          </div> */}
           <div className={[styles.home_sec1_block1_mid, styles.home_sec1_block1_mid_rev].join(" ")}>
             <div
               className={[
@@ -343,9 +342,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {prevGame && (
-        <div className={styles.home_table}>
-          {["cur"].map((v, i) => (
+      <div className={styles.home_table}>
+        <>
+          {["cur"].map((_v, i) => (
             <div key={i} className={styles.home_table_row}>
               <div className={styles.home_table_row_game}>
                 <div>Current game ★</div>
@@ -356,12 +355,14 @@ export default function HomePage() {
                 <div>{curHash}</div>
               </div>
 
-              {betPlaced && (
-                <div className={styles.home_table_row_bal}>
-                  <div>Bet:</div>
-                  <div>{`${ethValue} ${val}`}</div>
-                </div>
-              )}
+              <div className={styles.home_table_row_bal}>
+                {betPlaced && (
+                  <>
+                    <div>Bet:</div>
+                    <div>{`${ethValue} ${val}`}</div>
+                  </>
+                )}
+              </div>
 
               {betPlaced && (
                 <div className={styles.home_table_row_win}>
@@ -371,35 +372,40 @@ export default function HomePage() {
               )}
             </div>
           ))}
-          {([prevGame] as IPrevGame[]).map((v, i) => (
-            <div key={i} className={styles.home_table_row}>
-              <div className={styles.home_table_row_game}>
-                <div>Previous game ★</div>
-              </div>
+        </>
 
-              <div className={styles.home_table_row_game}>
-                <div>Hash:</div>
-                <div>{v.md5}</div>
-              </div>
-
-              {v.sumOfBet && (
-                <div className={styles.home_table_row_bal}>
-                  <div>Balance change:</div>
-                  <div style={{ color: v.sumOfBet && v.isWin ? "green" : "red" }}>
-                    {`${v.sumOfBet ? (v.isWin ? "" : "-") : ""}${v.sumOfBet ? `${v.sumOfBet} ${val}` : ""}`}
-                  </div>
+        {prevGame && (
+          <>
+            {([prevGame] as IPrevGame[]).map((v, i) => (
+              <div key={i} className={styles.home_table_row}>
+                <div className={styles.home_table_row_game}>
+                  <div>Previous game ★</div>
                 </div>
-              )}
 
-              <div className={styles.home_table_row_win}>
-                <div>WINNER:</div>
-                <img src={v.teamWin === team1 ? coin1 : coin2} alt="icon" />
-                <div>Team {v.teamWin}</div>
+                <div className={styles.home_table_row_game}>
+                  <div>Hash:</div>
+                  <div>{v.md5}</div>
+                </div>
+
+                {v.sumOfBet && (
+                  <div className={styles.home_table_row_bal}>
+                    <div>Balance change:</div>
+                    <div style={{ color: v.sumOfBet && v.isWin ? "green" : "red" }}>
+                      {`${v.sumOfBet ? (v.isWin ? "" : "-") : ""}${v.sumOfBet ? `${v.sumOfBet} ${val}` : ""}`}
+                    </div>
+                  </div>
+                )}
+
+                <div className={styles.home_table_row_win}>
+                  <div>WINNER:</div>
+                  <img src={v.teamWin === team1 ? coin1 : coin2} alt="icon" />
+                  <div>Team {v.teamWin}</div>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </>
+        )}
+      </div>
 
       <div className={styles.home_sec2}>
         <div className={styles.home_sec2_el}>
@@ -521,8 +527,8 @@ interface IPrevGame {
 function getMockedUsers(curTime: number, finishTS: number) {
   const users = [];
   for (let i = curTime; i < 60; i++) {
-    for (let idx = 0; idx < (i * 2) % 12; idx++) {
-      const u = getMockUser(+`${i}${idx}`, i, finishTS);
+    for (let idx = 0; idx < (i % 3) * 3 + (finishTS % 10); idx++) {
+      const u = getMockUser(idx, i, finishTS);
       if (users.findIndex((v) => v.sumOfBet === u.sumOfBet) === -1) {
         users.push(u);
       }
@@ -532,11 +538,21 @@ function getMockedUsers(curTime: number, finishTS: number) {
   return users;
 }
 
-function getMockUser(id: number, i: number, finishTS: number) {
+function getMockUser(idx: number, i: number, finishTS: number) {
+  let color = 0;
+
+  if (i < 24) {
+    color = +(i % (finishTS % 2 === 0 ? 2 : 3) === 0);
+  } else if (i < 45) {
+    color = Number(i % 5 === 0);
+  } else {
+    color = Number(i % 6 !== 1);
+  }
+
   return {
-    id,
-    color: i < 14 ? Number(i % 2 === 0) : Number(i % 3 !== 2),
+    id: `${i}${idx}`,
+    color,
     address: "0x*****",
-    sumOfBet: (finishTS % (167 * i)) + ((i * 2543) % 10000) + i * 11,
+    sumOfBet: (finishTS % (167 * i)) + ((idx * 2543) % 10000) + i * 11,
   };
 }

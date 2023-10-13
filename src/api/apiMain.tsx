@@ -28,6 +28,39 @@ export const getUserBets = (id: number) => {
   });
 };
 
+export const getStats = () => {
+  return fetch(`${BACKEND_URL}/flipshistory/public`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).catch((err) => {
+    console.error(err.message);
+  });
+};
+
+export const getDeposits = () => {
+  return fetch(`${BACKEND_URL}/users/deposit`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).catch((err) => {
+    console.error(err.message);
+  });
+};
+
+export const getWithdrawals = () => {
+  return fetch(`${BACKEND_URL}/users/withdraw`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).catch((err) => {
+    console.error(err.message);
+  });
+};
+
 export const placeBet = (form: { color: number; userId: string; md5: string; address: string; betSum: number }) => {
   return fetch(`${BACKEND_URL}/flipshistory`, {
     method: "POST",

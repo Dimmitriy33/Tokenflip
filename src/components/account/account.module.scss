@@ -294,4 +294,17 @@
       }
     }
   }
+
+  &_empty {
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 30px;
+    color: white;
+    letter-spacing: 2px;
+    margin: 0 10px 10px;
+  }
 }

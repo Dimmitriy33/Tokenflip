@@ -3,9 +3,9 @@ import coin1 from "images/coin1.svg";
 import coin2 from "images/coin2.svg";
 import stats from "images/stats.svg";
 import styles from "./stats.module.scss";
-import { getUserBets, login } from "@/api/apiMain";
+import { getStats } from "@/api/apiMain";
 import { useCallback, useEffect, useState } from "react";
-import { WalletState, useMetaMask } from "@/elements/metamask/useMetaMask";
+import { useMetaMask } from "@/elements/metamask/useMetaMask";
 // import bg_2 from "images/bg_2.svg";
 
 // const tableData2 = [
@@ -61,61 +61,9 @@ export default function StatsPage() {
   const [team2] = useState("SHIBA");
   const [val] = useState("TF");
 
-  const { wallet, hasProvider, apiUser, updateApiUser } = useMetaMask();
+  const { apiUser } = useMetaMask();
   const [res, setRes] = useState<Array<IRes>>([]);
   // const [u, setU] = useState();
-
-  const getHistory = useCallback(
-    async (id: number) => {
-      const res = await getUserBets(id);
-
-      //@ts-ignore
-      const data = await res.json();
-
-      setRes(data);
-    },
-    [apiUser]
-  );
-
-  const loginF = useCallback(
-    async (wallet: WalletState) => {
-      const res = await login(wallet);
-      //@ts-ignore
-      const data = await res.json();
-      updateApiUser({
-        ...data,
-        userId: data.id,
-      });
-
-      if (data.id != null) {
-        getHistory(data.id);
-      }
-    },
-    [updateApiUser]
-  );
-
-  useEffect(() => {
-    const wAcc = wallet.accounts[0];
-    if (hasProvider && wAcc && wAcc !== apiUser?.address) {
-      loginF(wallet);
-    } else if (apiUser?.id) {
-      getHistory(apiUser?.id);
-    }
-  }, [wallet]);
-
-  // useEffect(() => {
-  //   if (apiUser) {
-  //     getHistory();
-  //     setU(apiUser?.id);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   if (apiUser && apiUser?.id !== u?.id) {
-  //     getHistory();
-  //     setU(apiUser?.id);
-  //   }
-  // }, [apiUser]);
 
   const getIcon = (isWin: boolean, color: 0 | 1) => {
     if (isWin) {
@@ -148,6 +96,21 @@ export default function StatsPage() {
       return team1;
     }
   };
+
+  const getStatsF = useCallback(async () => {
+    const res = await getStats();
+
+    //@ts-ignore
+    const data = await res.json();
+
+    setRes(data);
+  }, []);
+
+  useEffect(() => {
+    if (apiUser) {
+      getStatsF();
+    }
+  }, [apiUser]);
 
   return (
     <div className={styles.home}>
