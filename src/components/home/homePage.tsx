@@ -387,13 +387,15 @@ export default function HomePage() {
                   <div>{v.md5}</div>
                 </div>
 
-                {v.sumOfBet && (
+                {v.sumOfBet ? (
                   <div className={styles.home_table_row_bal}>
                     <div>Balance change:</div>
                     <div style={{ color: v.sumOfBet && v.isWin ? "green" : "red" }}>
                       {`${v.sumOfBet ? (v.isWin ? "" : "-") : ""}${v.sumOfBet ? `${v.sumOfBet} ${val}` : ""}`}
                     </div>
                   </div>
+                ) : (
+                  ""
                 )}
 
                 <div className={styles.home_table_row_win}>

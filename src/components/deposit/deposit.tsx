@@ -77,7 +77,7 @@ export interface IWithDep {
 }
 
 export default function DepositPage() {
-  const { apiUser } = useMetaMask();
+  const { apiUser, isPendingTrans, sendTransaction } = useMetaMask();
 
   const [tableData, setTableData] = useState<IWithDep[]>([]);
   const [walletVal, setWalletVal] = useState(0);
@@ -100,6 +100,10 @@ export default function DepositPage() {
     const data = await res.json();
     setTableData(data);
   }, []);
+
+  const confirmTrans = () => {
+    // sendTransaction(apiUser.address, "0xf7393dbaa16d3dd8ab9897ec038af9499e95e7f8", walletVal);
+  };
 
   useEffect(() => {
     if (apiUser) {
@@ -182,7 +186,7 @@ export default function DepositPage() {
             </div>
 
             <div className={styles.home_sec3_main_bot}>
-              <button disabled={!confirm}>
+              <button disabled={!confirm || isPendingTrans} onClick={() => confirmTrans()}>
                 Confirm
                 <img src={arrow_right} alt="srt" />
               </button>

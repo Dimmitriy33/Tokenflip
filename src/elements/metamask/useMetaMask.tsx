@@ -16,6 +16,7 @@ interface MetaMaskContextData {
   wallet: WalletState;
   apiUser: any;
   hasProvider: boolean | null;
+  isPendingTrans: boolean;
   error: boolean;
   errorMessage: string;
   isConnecting: boolean;
@@ -23,6 +24,7 @@ interface MetaMaskContextData {
   clearError: () => void;
   updateBalance: (change: number) => void;
   updateApiUser: (c: any) => void;
+  sendTransaction: (sender: string, receiver: string, amount: number) => void;
 }
 
 const disconnectedState: WalletState = { accounts: [], balance: "", chainId: "" };
@@ -31,6 +33,7 @@ const MetaMaskContext = createContext<MetaMaskContextData>({} as MetaMaskContext
 
 export function MetaMaskContextProvider({ children }: PropsWithChildren) {
   const [hasProvider, setHasProvider] = useState<boolean | null>(null);
+  const [isPendingTrans, setIsPendingTrans] = useState<boolean>(false);
   const [isConnecting, setIsConnecting] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -62,8 +65,37 @@ export function MetaMaskContextProvider({ children }: PropsWithChildren) {
     setWallet({ accounts, balance, chainId });
   }, []);
 
+  const _sendTransaction = useCallback(async (sender: string, receiver: string, amount: number) => {
+    const gasPrice = "0x5208";
+    const amountHex = amount.toString(16);
+    console.log(amountHex);
+    const rx = {
+      from: sender,
+      to: receiver,
+      value: amountHex,
+      gas: gasPrice,
+    };
+
+    try {
+      await window.ethereum.request({
+        method: "eth_sendTransaction",
+        params: [rx],
+      });
+
+      updateBalance(amount * -1);
+    } catch {
+      console.log("err declined");
+    } finally {
+      setIsPendingTrans(false);
+    }
+  }, []);
+
   const updateWalletAndAccounts = useCallback(() => _updateWallet(), [_updateWallet]);
   const updateWallet = useCallback((accounts: any) => _updateWallet(accounts), [_updateWallet]);
+  const sendTransaction = useCallback(
+    (sender: string, receiver: string, amount: number) => _sendTransaction(sender, receiver, amount),
+    [_sendTransaction]
+  );
 
   /**
    * This logic checks if MetaMask is installed. If it is, some event handlers are set up
@@ -113,9 +145,15 @@ export function MetaMaskContextProvider({ children }: PropsWithChildren) {
     });
   };
 
+  const handleTrans = (sender: string, receiver: string, amount: number) => {
+    setIsPendingTrans(true);
+    sendTransaction(sender, receiver, amount);
+  };
+
   const updateApiUser = (v) => {
     setApiUser(v);
   };
+
   return (
     <MetaMaskContext.Provider
       value={{
@@ -123,12 +161,14 @@ export function MetaMaskContextProvider({ children }: PropsWithChildren) {
         wallet,
         hasProvider,
         error: !!errorMessage,
+        isPendingTrans,
         errorMessage,
         isConnecting,
         connectMetaMask,
         clearError,
         updateBalance,
         updateApiUser,
+        sendTransaction: handleTrans,
       }}
     >
       {children}
