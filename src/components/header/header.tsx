@@ -4,6 +4,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import logo from "images/logoMain.svg";
+import logo_2 from "images/logo_2.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMetaMask } from "@/elements/metamask/useMetaMask";
 import { useState } from "react";
@@ -41,11 +42,12 @@ export default function Header() {
   return (
     <div className={styles.header}>
       <div className={styles.header_left}>
-        <img src={logo} alt="logo" />
-        <div className={styles.header_left_2}>
+        {/* <img src={logo} alt="logo" /> */}
+        <img src={logo_2} alt="logo" />
+        {/* <div className={styles.header_left_2}>
           <div className={styles.header_left_2_1}>Token</div>
           <div className={styles.header_left_2_2}>Flip</div>
-        </div>
+        </div> */}
       </div>
       <div className={styles.header_menu}>
         {pathes.map((v, i) => (

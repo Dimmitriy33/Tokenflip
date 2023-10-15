@@ -59,7 +59,7 @@ export default function HomePage() {
       setPrevGame({
         ...prev,
         sumOfBet: data.sumOfBet,
-        teamWin: data?.color === 0 ? team1 : team2,
+        teamWin: data?.teamWin === 0 ? team1 : team2,
         isWin: data.isWin,
       });
       if (data.isWin) {

@@ -122,7 +122,7 @@ export default function AccountPage() {
         <div className={styles.home_sec5}>
           <h2>
             <img src={cash} alt="arr" />
-            {apiUser ? (+apiUser?.balance).toFixed(2) : "0"} {val}
+            {apiUser && apiUser?.balance ? (+apiUser?.balance).toFixed(2) : "0"} {val}
           </h2>
           <div className={styles.home_sec5_p}>
             <div className={styles.home_sec5_p_1}>
@@ -148,7 +148,7 @@ export default function AccountPage() {
               </div>
               <div className={styles.home_sec5_main_info_right}>
                 <img src={cup} alt="asd" />
-                <p>79</p>
+                <p>{winCount + loseCount}</p>
               </div>
             </div>
 

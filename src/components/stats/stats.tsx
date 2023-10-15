@@ -61,7 +61,6 @@ export default function StatsPage() {
   const [team2] = useState("SHIBA");
   // const [val] = useState("TF");
 
-  const { apiUser } = useMetaMask();
   const [res, setRes] = useState<Array<IRes>>([]);
   // const [u, setU] = useState();
 
@@ -107,10 +106,8 @@ export default function StatsPage() {
   }, []);
 
   useEffect(() => {
-    if (apiUser) {
-      getStatsF();
-    }
-  }, [apiUser]);
+    getStatsF();
+  }, []);
 
   return (
     <div className={styles.home}>
